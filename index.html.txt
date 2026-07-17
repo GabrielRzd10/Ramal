@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dimensionador de Ramais & Proposta Comercial</title>
+    
+    <!-- Configurações para se comportar como Aplicativo no iPhone (PWA iOS) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ramal Vendas">
+    <link rel="apple-touch-icon" href="https://placehold.co/180x180/4f46e5/ffffff?text=Ramal">
+
+    <!-- Tailwind CSS para design premium moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* STREAMING_CHUNK: Definindo fontes e estilos globais... */
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            /* Suporte para notch de iPhones modernos em modo tela cheia */
+            padding-top: env(safe-area-inset-top);
+        }
+
+        /* ESTILOS DE IMPRESSÃO - CORREÇÃO DE PÁGINA EM BRANCO */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+                background: white !important;
+                color: black !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 15mm;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <!-- STREAMING_CHUNK: Construindo a UI principal do sistema... -->
+    <!-- UI DO SISTEMA (NÃO IMPRESSO) -->
+    <div class="no-print flex-grow flex flex-col">
+        <!-- HEADER -->
+        <header class="bg-gradient-to-r from-slate-900 via-slate-950 to-indigo-950 text-white shadow-md py-4 px-6">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-600 p-2.5 rounded-xl text-white shadow-lg">
+                        <i class="fa-solid fa-solar-panel text-2xl animate-pulse"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight">Cálculo de Ramais & Propostas</h1>
+                        <p class="text-xs text-indigo-200">Plataforma Comercial de Engenharia</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <button onclick="promptManager()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2 border border-slate-700">
+                        <i class="fa-solid fa-gears text-indigo-400"></i> Ajustar Preços (Gerente)
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
+            
+            <!-- STREAMING_CHUNK: Renderizando abas de navegação... -->
+            <!-- ABAS DE NAVEGAÇÃO DOS PADRÕES -->
+            <div class="bg-white p-2.5 rounded-xl shadow-sm border border-slate-200 flex flex-wrap gap-2">
+                <button onclick="switchTab('bifasico')" id="tab-bifasico" class="flex-1 py-3 px-4 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-sm">
+                    <i class="fa-solid fa-bolt"></i> Padrão Bifásico
+                </button>
+                <button onclick="switchTab('trifasico')" id="tab-trifasico" class="flex-1 py-3 px-4 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 bg-slate-50 text-slate-600 hover:bg-slate-100">
+                    <i class="fa-solid fa-bolt-lightning"></i> Padrão Trifásico
+                </button>
+                <button onclick="switchTab('misto')" id="tab-misto" class="flex-1 py-3 px-4 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 bg-slate-50 text-slate-600 hover:bg-slate-100">
+                    <i class="fa-solid fa-shuffle"></i> Trifásico "Misto"
+                </button>
+            </div>
+
+            <!-- STREAMING_CHUNK: Organizando formulários de entrada... -->
+            <!-- ÁREA DA CALCULADORA ATIVA -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- COLUNA ESQUERDA: ENTRADA DE DADOS -->
+                <div class="lg:col-span-5 bg-white p-6 rounded-2xl shadow-sm border border-slate-150 flex flex-col justify-between space-y-6">
+                    <div>
+                        <div class="flex items-center gap-2 border-b border-slate-100 pb-3 mb-6">
+                            <i class="fa-solid fa-sliders text-indigo-600 text-lg"></i>
+                            <h2 class="text-lg font-bold text-slate-900" id="form-title">Dados de Entrada</h2>
+                        </div>
+
+                        <div class="space-y-5">
+                            <!-- Distância -->
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1" id="lbl-distancia">Comprimento do Ramal (B5)</label>
+                                <div class="relative">
+                                    <input type="number" id="input-dist" value="100" min="1" oninput="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 pl-4 pr-12 text-slate-900 font-bold outline-none transition">
+                                    <span class="absolute right-4 top-3.5 text-slate-400 text-sm font-bold">m</span>
+                                </div>
+                            </div>
+
+                            <!-- Potências do Inversor (Condicional) -->
+                            <div id="pot-single-container">
+                                <label class="block text-sm font-semibold text-slate-700 mb-1" id="lbl-potencia">Potência dos Inversores (B6)</label>
+                                <div class="relative">
+                                    <input type="number" id="input-pot" value="7.5" step="0.1" min="0.1" oninput="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 pl-4 pr-12 text-slate-900 font-bold outline-none transition">
+                                    <span class="absolute right-4 top-3.5 text-slate-400 text-sm font-bold">kW</span>
+                                </div>
+                            </div>
+
+                            <div id="pot-misto-container" class="hidden space-y-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Inversores Bifásicos (B22)</label>
+                                    <div class="relative">
+                                        <input type="number" id="input-pot-bi" value="5" step="0.1" min="0" oninput="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 pl-4 pr-12 text-slate-900 font-bold outline-none transition">
+                                        <span class="absolute right-4 top-3.5 text-slate-400 text-sm font-bold">kW</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Inversores Trifásicos (B23)</label>
+                                    <div class="relative">
+                                        <input type="number" id="input-pot-tri" value="15" step="0.1" min="0" oninput="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 pl-4 pr-12 text-slate-900 font-bold outline-none transition">
+                                        <span class="absolute right-4 top-3.5 text-slate-400 text-sm font-bold">kW</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tensão -->
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1" id="lbl-tensao">Tensão do Sistema (B7)</label>
+                                <select id="input-tensao" onchange="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 px-4 text-slate-900 font-bold outline-none transition appearance-none">
+                                    <!-- Populado dinamicamente via JS -->
+                                </select>
+                            </div>
+
+                            <!-- Quantidade de Postes Utilizada -->
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="block text-sm font-semibold text-slate-700">Qtd. de Postes Utilizada (Z10)</label>
+                                    <span class="text-xs font-bold bg-indigo-50 text-indigo-600 px-2.5 py-0.5 rounded-full" id="sugestao-postes-badge">Sugerido: --</span>
+                                </div>
+                                <input type="number" id="input-postes" value="4" min="0" oninput="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 px-4 text-slate-900 font-bold outline-none transition">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl text-xs text-indigo-900 space-y-1">
+                        <p class="font-bold"><i class="fa-solid fa-circle-info mr-1 text-indigo-600"></i>Regra de Distribuição de Postes:</p>
+                        <p>• Bitola até <strong>50mm²</strong>: 1 poste a cada 40 metros de ramal.</p>
+                        <p>• Bitola acima de <strong>50mm²</strong>: 1 poste a cada 30 metros de ramal.</p>
+                    </div>
+                </div>
+
+                <!-- STREAMING_CHUNK: Processando cards de engenharia... -->
+                <!-- COLUNA DIREITA: RESULTADOS & CÁLCULOS -->
+                <div class="lg:col-span-7 space-y-6">
+                    
+                    <!-- ANÁLISE DE ENGENHARIA -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-150">
+                        <div class="flex items-center gap-2 border-b border-slate-100 pb-3 mb-5">
+                            <i class="fa-solid fa-circle-nodes text-indigo-600 text-lg"></i>
+                            <h2 class="text-lg font-bold text-slate-900">Análise de Engenharia</h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Corrente -->
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center flex flex-col justify-between">
+                                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Corrente Calculada</span>
+                                <div class="my-2" id="box-corrente-misto">
+                                    <div id="out-corrente-container" class="text-2xl font-extrabold text-slate-900">-- A</div>
+                                </div>
+                                <span class="text-[10px] text-slate-400" id="lbl-formula-corrente">Fórmula do Padrão</span>
+                            </div>
+
+                            <!-- Seção Calculada -->
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center flex flex-col justify-between">
+                                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Seção Teórica (mm²)</span>
+                                <div class="my-2">
+                                    <span id="out-secao-teorica" class="text-2xl font-extrabold text-slate-900">--</span>
+                                    <span class="text-sm font-bold text-slate-500"> mm²</span>
+                                </div>
+                                <span class="text-[10px] text-slate-400" id="lbl-formula-secao">Queda de Tensão (QT)</span>
+                            </div>
+
+                            <!-- Ramal Escolhido -->
+                            <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 text-center flex flex-col justify-between">
+                                <span class="text-xs font-bold text-indigo-500 uppercase tracking-wider">Ramal Comercial</span>
+                                <div class="my-2">
+                                    <span id="out-ramal-escolhido" class="text-3xl font-extrabold text-indigo-600">--</span>
+                                    <span class="text-sm font-bold text-indigo-500" id="out-un-ramal"> mm²</span>
+                                </div>
+                                <span class="text-[10px] text-indigo-400">Próxima bitola comercial de mercado</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STREAMING_CHUNK: Desenhando composição comercial... -->
+                    <!-- COMPOSIÇÃO DE VALORES -->
+                    <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl border border-slate-800">
+                        <div class="flex items-center gap-2 border-b border-slate-800 pb-3 mb-5">
+                            <i class="fa-solid fa-coins text-emerald-400 text-lg"></i>
+                            <h2 class="text-lg font-bold">Composição Comercial</h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Detalhado -->
+                            <div class="space-y-3.5 text-sm">
+                                <div class="flex justify-between border-b border-slate-800 pb-2">
+                                    <span class="text-slate-400">Valor do Ramal:</span>
+                                    <span id="fin-ramal" class="font-bold text-slate-200">R$ 0,00</span>
+                                </div>
+                                <div class="flex justify-between border-b border-slate-800 pb-2">
+                                    <span class="text-slate-400">Valor dos Postes:</span>
+                                    <span id="fin-poste" class="font-bold text-slate-200">R$ 0,00</span>
+                                </div>
+                                <div class="flex justify-between border-b border-slate-800 pb-2">
+                                    <span class="text-slate-400">Mão de Obra (M-O):</span>
+                                    <span id="fin-mo" class="font-bold text-slate-200">R$ 0,00</span>
+                                </div>
+                                <div class="flex justify-between border-b border-slate-800 pb-2 relative group cursor-pointer" onclick="openMaterialsModal()">
+                                    <span class="text-slate-400 underline decoration-dotted hover:text-indigo-300">Valor Adicional (Materiais) <i class="fa-solid fa-circle-question text-xs"></i>:</span>
+                                    <span id="fin-adicional" class="font-bold text-emerald-300">R$ 0,00</span>
+                                </div>
+                            </div>
+
+                            <!-- Totalização -->
+                            <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-800 flex flex-col justify-between items-center text-center">
+                                <div>
+                                    <span class="text-xs font-bold text-indigo-300 uppercase tracking-wider">Investimento Total Estimado</span>
+                                    <div class="text-3xl font-black text-emerald-400 mt-1" id="fin-total">R$ 0,00</div>
+                                </div>
+                                
+                                <button onclick="generateProposal()" class="w-full mt-4 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold py-3 px-4 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-lg">
+                                    <i class="fa-solid fa-file-pdf"></i> Gerar Orçamento Comercial
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- STREAMING_CHUNK: Estruturando os modais dinâmicos... -->
+            <!-- MODAL DE LISTA DE MATERIAIS ADICIONAIS -->
+            <div id="materials-modal" class="hidden fixed inset-0 bg-slate-950/75 flex items-center justify-center p-4 z-50">
+                <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-boxes-stacked text-indigo-600"></i> Memória de Materiais Adicionais (<span id="modal-bitola-title">--</span> mm²)
+                        </h3>
+                        <button onclick="closeMaterialsModal()" class="text-slate-400 hover:text-slate-600 font-bold text-xl">&times;</button>
+                    </div>
+                    <div class="overflow-x-auto max-h-96 overflow-y-auto">
+                        <table class="w-full text-left text-sm border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-200 text-slate-500">
+                                    <th class="pb-2">Material</th>
+                                    <th class="pb-2 text-center">Qtd. Necessária</th>
+                                    <th class="pb-2 text-right">Preço Unitário</th>
+                                    <th class="pb-2 text-right">Preço Parcial</th>
+                                </tr>
+                            </thead>
+                            <tbody id="materials-table-body" class="divide-y divide-slate-100 text-slate-700">
+                                <!-- Preenchido dinamicamente via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-slate-900">
+                        <span>Total de Adicionais:</span>
+                        <span id="modal-total-adicionais" class="text-indigo-600 text-lg">R$ 0,00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STREAMING_CHUNK: Estruturando o módulo do gerente... -->
+            <!-- CONFIGURADOR DE PREÇOS (GERENTE) -->
+            <div id="manager-config" class="hidden bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-gears text-indigo-600 text-lg"></i>
+                        <h2 class="text-lg font-bold text-slate-900">Configuração de Tabelas de Preço</h2>
+                    </div>
+                    <button onclick="closeManagerConfig()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-xs transition">
+                        Fechar & Salvar
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Preço de Cabos -->
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-sm text-slate-800 border-b border-slate-100 pb-1">Preço Metro de Cabo (Y/Z)</h3>
+                        <div class="max-h-72 overflow-y-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="text-left text-slate-500 border-b">
+                                        <th class="pb-2">Bitola</th>
+                                        <th class="pb-2">Triplex (Bifásico)</th>
+                                        <th class="pb-2">Quadruplex (Trifásicos)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="config-cabos-tbody" class="divide-y divide-slate-100">
+                                    <!-- Preenchido via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Preço de Componentes -->
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-sm text-slate-800 border-b border-slate-100 pb-1">Preço de Peças e Acessórios</h3>
+                        <div class="max-h-72 overflow-y-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="text-left text-slate-500 border-b">
+                                        <th class="pb-2">Material / Equipamento</th>
+                                        <th class="pb-2 text-right">Preço Unitário</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="config-pecas-tbody" class="divide-y divide-slate-100">
+                                    <!-- Preenchido via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- RODAPÉ -->
+        <footer class="bg-slate-950 text-slate-500 py-4 px-6 text-center text-xs border-t border-slate-900">
+            Dimensionador Comercial Universal • Em conformidade com as regras NBR 5410 de queda de tensão.
+        </footer>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!--  PROPOSTA COMERCIAL IMPRIMÍVEL (A4)         -->
+    <!-- ========================================== -->
+    <!-- STREAMING_CHUNK: Estruturando o template de impressão do PDF... -->
+    <div id="printable-proposal" class="hidden print-only">
+        <div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 800px; margin: 0 auto; padding: 20px;">
+            <!-- Cabeçalho Principal -->
+            <table style="width: 100%; border-bottom: 3px solid #4f46e5; padding-bottom: 20px; margin-bottom: 25px;">
+                <tr>
+                    <td>
+                        <h1 style="font-size: 26px; font-weight: 800; color: #0f172a; margin: 0; text-transform: uppercase;">Proposta Comercial & Técnica</h1>
+                        <p style="font-size: 14px; color: #4f46e5; margin: 5px 0 0 0; font-weight: bold;" id="prop-padrão-titulo">PADRÃO BIFÁSICO</p>
+                    </td>
+                    <td style="text-align: right; font-size: 13px; color: #64748b; line-height: 1.6;">
+                        <strong>Data de Geração:</strong> <span id="prop-data">--</span><br>
+                        <strong>Ref:</strong> PROP-ENG-<span id="prop-ref">--</span>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Grid de Configurações Técnicas -->
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                <tr>
+                    <!-- Bloco 1: Dados do Cliente e Projeto -->
+                    <td style="width: 50%; vertical-align: top; padding-right: 20px;">
+                        <h3 style="font-size: 12px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">Informações de Campo</h3>
+                        <table style="width: 100%; font-size: 13px; line-height: 2.2;">
+                            <tr>
+                                <td style="color: #64748b;">Distância Linear do Ramal:</td>
+                                <td style="font-weight: bold; text-align: right;"><span id="prop-dist">--</span> m</td>
+                            </tr>
+                            <tr id="prop-pot-row-single">
+                                <td style="color: #64748b;">Potência Geradores Solar:</td>
+                                <td style="font-weight: bold; text-align: right;"><span id="prop-pot">--</span> kW</td>
+                            </tr>
+                            <tr id="prop-pot-row-misto" style="display: none;">
+                                <td style="color: #64748b; line-height: 1.4;">Potência Bifásica / Trifásica:</td>
+                                <td style="font-weight: bold; text-align: right; line-height: 1.4;"><span id="prop-pot-bi">--</span> kW / <span id="prop-pot-tri">--</span> kW</td>
+                            </tr>
+                            <tr>
+                                <td style="color: #64748b;">Tensão Operacional:</td>
+                                <td style="font-weight: bold; text-align: right;"><span id="prop-tens">--</span> V</td>
+                            </tr>
+                            <tr>
+                                <td style="color: #64748b;">Quantidade de Postes Utilizados:</td>
+                                <td style="font-weight: bold; text-align: right;"><span id="prop-postes">--</span> un</td>
+                            </tr>
+                        </table>
+                    </td>
+
+                    <!-- Bloco 2: Dimensionamento de Engenharia -->
+                    <td style="width: 50%; vertical-align: top; padding-left: 20px; border-left: 2px solid #f1f5f9;">
+                        <h3 style="font-size: 12px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">Resultados de Dimensionamento</h3>
+                        <table style="width: 100%; font-size: 13px; line-height: 2.2;">
+                            <tr>
+                                <td style="color: #64748b;">Corrente Máxima de Inversores:</td>
+                                <td style="font-weight: bold; text-align: right;"><span id="prop-corrente">--</span> A</td>
+                            </tr>
+                            <tr>
+                                <td style="color: #64748b;">Seção Teórica Estimada (QT):</td>
+                                <td style="font-weight: bold; text-align: right;"><span id="prop-secao">--</span> mm²</td>
+                            </tr>
+                            <tr style="font-size: 15px; font-weight: bold; color: #4f46e5;">
+                                <td style="padding-top: 10px;">Cabo de Ramal Selecionado:</td>
+                                <td style="text-align: right; padding-top: 10px;"><span id="prop-bitola">--</span> mm²</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Orçamento de Investimento -->
+            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 30px;">
+                <h3 style="font-size: 13px; font-weight: 800; color: #1e293b; text-transform: uppercase; margin-top: 0; margin-bottom: 18px; border-bottom: 2px solid #cbd5e1; padding-bottom: 6px;">Composição Comercial</h3>
+                <table style="width: 100%; font-size: 14px; line-height: 2.4;">
+                    <tr>
+                        <td style="color: #475569;">Valor de Aquisição de Cabo de Ramal:</td>
+                        <td style="font-weight: bold; text-align: right; color: #0f172a;" id="prop-v-ramal">--</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #475569;">Valor de Aquisição de Postes de Concreto:</td>
+                        <td style="font-weight: bold; text-align: right; color: #0f172a;" id="prop-v-postes">--</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #475569;">Mão de Obra de Infraestrutura e Lançamento:</td>
+                        <td style="font-weight: bold; text-align: right; color: #0f172a;" id="prop-v-mo">--</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #475569; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;">Materiais Adicionais e Conectores de Fixação:</td>
+                        <td style="font-weight: bold; text-align: right; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;" id="prop-v-add">--</td>
+                    </tr>
+                    <tr style="font-size: 20px; font-weight: 900; color: #0f172a;">
+                        <td style="padding-top: 15px;">INVESTIMENTO TOTAL ESTIMADO:</td>
+                        <td style="text-align: right; color: #16a34a; padding-top: 15px;" id="prop-v-total">--</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Termo de Aprovação Técnica -->
+            <div style="font-size: 11px; color: #64748b; line-height: 1.6; border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: justify;">
+                <p style="margin: 0 0 10px 0;"><strong>Termo de Engenharia:</strong> O presente dimensionamento e cálculo de condutor e queda de tensão foram estruturados em total conformidade com a regulamentação técnica da <strong>NBR 5410</strong>. A estimativa considera queda de tensão em circuitos terminais para inversores fotovoltaicos com as potências informadas.</p>
+                <p style="margin: 0 0 20px 0;">Este documento técnico é gerado para fins comerciais preliminares. É fundamental que a engenharia de campo valide as distâncias reais de fixação, ancoragem de poste e bitola do ramal antes do início de obras de infraestrutura.</p>
+                
+                <!-- Linhas de assinatura -->
+                <table style="width: 100%; margin-top: 40px; border-collapse: collapse;">
+                    <tr>
+                        <td style="width: 45%; border-top: 1px solid #cbd5e1; text-align: center; padding-top: 8px;">
+                            <strong>Responsável Técnico</strong><br>Departamento de Engenharia
+                        </td>
+                        <td style="width: 10%;"></td>
+                        <td style="width: 45%; border-top: 1px solid #cbd5e1; text-align: center; padding-top: 8px;">
+                            <strong>Aprovação Comercial</strong><br>Cliente Responsável
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- CONTROLADOR DO FLUXO JAVASCRIPT -->
+    <!-- STREAMING_CHUNK: Implementando toda a lógica de processamento JavaScript... -->
+    <script>
+        // Memória de Estado Global da Aplicação
+        let currentTab = 'bifasico';
+
+        // Base de Dados de Preços das tabelas Y e Z da Imagem 022ddf.png
+        const pricingDB = {
+            cabos: {
+                "16":  { triplex: 9.59,  quadruplex: 13.12 },
+                "25":  { triplex: 14.28, quadruplex: 18.00 },
+                "35":  { triplex: 13.65, quadruplex: 28.54 },
+                "50":  { triplex: 18.90, quadruplex: 30.72 },
+                "70":  { triplex: 33.76, quadruplex: 30.30 },
+                "95":  { triplex: 48.36, quadruplex: 61.90 },
+                "120": { triplex: 61.08, quadruplex: 74.60 },
+                "150": { triplex: 38.18, quadruplex: 43.50 } // Fallback de segurança
+            },
+            pecas: {
+                "PARAFUSO_M16_OLHAL": 35.90,
+                "ALCA_PRE_16": 3.25,
+                "ALCA_PRE_25": 4.00,
+                "ALCA_PRE_35": 4.90,
+                "ALCA_PRE_50": 5.50,
+                "ALCA_PRE_70": 8.88,
+                "ALCA_PRE_95": 12.80,
+                "ALCA_PRE_120": 14.32,
+                "TUBO_CONDULETE_1": 19.05,
+                "JOELHO_CONDULETE_1": 4.40,
+                "ABRACADEIRA_1": 3.20,
+                "LUVA_BRANCA_1": 2.64,
+                "CONECTOR_CDP70": 10.10,
+                "CONECTOR_CDP150": 20.15,
+                "CONECTOR_CDP120": 28.20,
+                "ELETRODUTO_PRETO_2": 31.75,
+                "CABECOTE_ALU_2": 16.20,
+                "ABRACADEIRA_2": 4.40,
+                "LUVA_PRETA_2": 4.95,
+                "ELETRODUTO_PRETO_3": 77.98,
+                "CABECOTE_ALU_3": 32.40,
+                "ABRACADEIRA_3": 5.50,
+                "LUVA_PRETA_3": 10.05
+            }
+        };
+
+        // Estrutura de materiais adicionais conforme bitola da Imagem 02317f.png
+        const materiaisPorBitola = {
+            "16": [
+                { id: "PARAFUSO_M16_OLHAL", desc: "PARAFUSO M16 COM OLHAL 200mm", baseQtd: 1, porPoste: true },
+                { id: "ALCA_PRE_16", desc: "ALÇA PRÉ FORMADA 16mm", baseQtd: 1, porPoste: true },
+                { id: "TUBO_CONDULETE_1", desc: 'TUBO CONDULETE ELETRODUTO 1"', baseQtd: 2, porPoste: false },
+                { id: "JOELHO_CONDULETE_1", desc: 'JOELHO COTOVELO CONDULETE 1"', baseQtd: 2, porPoste: false },
+                { id: "ABRACADEIRA_1", desc: 'ABRAÇADEIRA GALV TIPO COPO 1"', baseQtd: 4, porPoste: false },
+                { id: "LUVA_BRANCA_1", desc: 'LUVA CONDULETE BRANCA 1"', baseQtd: 2, porPoste: false },
+                { id: "CONECTOR_CDP70", desc: 'CONECTOR PERFURANTE CDP-70', baseQtd: 4, porPoste: false }
+            ],
+            "25": [
+                { id: "PARAFUSO_M16_OLHAL", desc: "PARAFUSO M16 COM OLHAL 200mm", baseQtd: 1, porPoste: true },
+                { id: "ALCA_PRE_25", desc: "ALÇA PRÉ FORMADA 25mm", baseQtd: 1, porPoste: true },
+                { id: "TUBO_CONDULETE_1", desc: 'TUBO CONDULETE ELETRODUTO BRANCO 1"', baseQtd: 2, porPoste: false },
+                { id: "JOELHO_CONDULETE_1", desc: 'JOELHO COTOVELO CONDULETE BRANCO 1"', baseQtd: 2, porPoste: false },
+                { id: "ABRACADEIRA_1", desc: 'ABRAÇADEIRA GALV TIPO COPO 1"', baseQtd: 4, porPoste: false },
+                { id: "LUVA_BRANCA_1", desc: 'LUVA CONDULETE BRANCA 1"', baseQtd: 2, porPoste: false },
+                { id: "CONECTOR_CDP150", desc: 'CONECTOR PERFURANTE CDP-150', baseQtd: 4, porPoste: false }
+            ],
+            "35": [
+                { id: "PARAFUSO_M16_OLHAL", desc: "PARAFUSO M16 COM OLHAL 200mm", baseQtd: 1, porPoste: true },
+                { id: "ALCA_PRE_35", desc: "ALÇA PRÉ FORMADA 35mm", baseQtd: 1, porPoste: true },
+                { id: "ELETRODUTO_PRETO_2", desc: 'ELETRODUTO PRETO 3M ROSCÁVEL 2"', baseQtd: 2, porPoste: false },
+                { id: "CABECOTE_ALU_2", desc: 'CABEÇOTE DE ALUMÍNIO 2"', baseQtd: 2, porPoste: false },
+                { id: "ABRACADEIRA_2", desc: 'ABRAÇADEIRA GALV TIPO COPO 2"', baseQtd: 4, porPoste: false },
+                { id: "LUVA_PRETA_2", desc: 'LUVA PRETA ELETRODUTO ROSCÁVEL 2"', baseQtd: 2, porPoste: false },
+                { id: "CONECTOR_CDP150", desc: 'CONECTOR PERFURANTE CDP-150', baseQtd: 4, porPoste: false }
+            ],
+            "50": [
+                { id: "PARAFUSO_M16_OLHAL", desc: "PARAFUSO M16 COM OLHAL 200mm", baseQtd: 1, porPoste: true },
+                { id: "ALCA_PRE_50", desc: "ALÇA PRÉ FORMADA 50mm", baseQtd: 1, porPoste: true },
+                { id: "ELETRODUTO_PRETO_2", desc: 'ELETRODUTO PRETO 3M ROSCÁVEL 2"', baseQtd: 2, porPoste: false },
+                { id: "CABECOTE_ALU_2", desc: 'CABEÇOTE DE ALUMÍNIO 2"', baseQtd: 2, porPoste: false },
+                { id: "ABRACADEIRA_2", desc: 'ABRAÇADEIRA GALV TIPO COPO 2"', baseQtd: 4, porPoste: false },
+                { id: "LUVA_PRETA_2", desc: 'LUVA PRETA ELETRODUTO ROSCÁVEL 2"', baseQtd: 2, porPoste: false },
+                { id: "CONECTOR_CDP120", desc: 'CONECTOR PERFURANTE CDP-120', baseQtd: 4, porPoste: false }
+            ],
+            "70": [
+                { id: "PARAFUSO_M16_OLHAL", desc: "PARAFUSO M16 COM OLHAL 200mm", baseQtd: 1, porPoste: true },
+                { id: "ALCA_PRE_70", desc: "ALÇA PRÉ FORMADA 70mm", baseQtd: 1, porPoste: true },
+                { id: "ELETRODUTO_PRETO_2", desc: 'ELETRODUTO PRETO 3M ROSCÁVEL 2"', baseQtd: 2, porPoste: false },
+                { id: "CABECOTE_ALU_2", desc: 'CABEÇOTE DE ALUMÍNIO 2"', baseQtd: 2, porPoste: false },
+                { id: "ABRACADEIRA_2", desc: 'ABRAÇADEIRA GALV TIPO COPO 2"', baseQtd: 4, porPoste: false },
+                { id: "LUVA_PRETA_2", desc: 'LUVA PRETA ELETRODUTO ROSCÁVEL 2"', baseQtd: 2, porPoste: false },
+                { id: "CONECTOR_CDP120", desc: 'CONECTOR PERFURANTE CDP-120', baseQtd: 4, porPoste: false }
+            ],
+            "95": [
+                { id: "PARAFUSO_M16_OLHAL", desc: "PARAFUSO M16 COM OLHAL 200mm", baseQtd: 1, porPoste: true },
+                { id: "ALCA_PRE_95", desc: "ALÇA PRÉ FORMADA 95mm", baseQtd: 1, porPoste: true },
+                { id: "ELETRODUTO_PRETO_3", desc: 'ELETRODUTO PRETO 3M ROSCÁVEL 3"', baseQtd: 2, porPoste: false },
+                { id: "CABECOTE_ALU_3", desc: 'CABEÇOTE DE ALUMÍNIO 3"', baseQtd: 2, porPoste: false },
+                { id: "ABRACADEIRA_3", desc: 'ABRAÇADEIRA GALV TIPO COPO 3"', baseQtd: 4, porPoste: false },
+                { id: "LUVA_PRETA_3", desc: 'LUVA PRETA ELETRODUTO ROSCÁVEL 3"', baseQtd: 2, porPoste: false },
+                { id: "CONECTOR_CDP120", desc: 'CONECTOR PERFURANTE CDP-120', baseQtd: 4, porPoste: false }
+            ],
+            "120": [
+                { id: "PARAFUSO_M16_OLHAL", desc: "PARAFUSO M16 COM OLHAL 200mm", baseQtd: 1, porPoste: true },
+                { id: "ALCA_PRE_120", desc: "ALÇA PRÉ FORMADA 120mm", baseQtd: 1, porPoste: true },
+                { id: "ELETRODUTO_PRETO_3", desc: 'ELETRODUTO PRETO 3M ROSCÁVEL 3"', baseQtd: 2, porPoste: false },
+                { id: "CABECOTE_ALU_3", desc: 'CABEÇOTE DE ALUMÍNIO 3"', baseQtd: 2, porPoste: false },
+                { id: "ABRACADEIRA_3", desc: 'ABRAÇADEIRA GALV TIPO COPO 3"', baseQtd: 4, porPoste: false },
+                { id: "LUVA_PRETA_3", desc: 'LUVA PRETA ELETRODUTO ROSCÁVEL 3"', baseQtd: 2, porPoste: false },
+                { id: "CONECTOR_CDP120", desc: 'CONECTOR PERFURANTE CDP-120', baseQtd: 4, porPoste: false }
+            ]
+        };
+
+        // Alternância de Abas de Projeto (Bifásico / Trifásico / Misto)
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            const buttons = {
+                bifasico: document.getElementById('tab-bifasico'),
+                trifasico: document.getElementById('tab-trifasico'),
+                misto: document.getElementById('tab-misto')
+            };
+
+            Object.keys(buttons).forEach(key => {
+                if(key === tab) {
+                    buttons[key].className = "flex-1 py-3 px-4 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-sm";
+                } else {
+                    buttons[key].className = "flex-1 py-3 px-4 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 bg-slate-50 text-slate-600 hover:bg-slate-100";
+                }
+            });
+
+            const singlePotContainer = document.getElementById('pot-single-container');
+            const mistoPotContainer = document.getElementById('pot-misto-container');
+            const selectTensao = document.getElementById('input-tensao');
+
+            if(tab === 'bifasico') {
+                document.getElementById('form-title').innerText = "Entrada de Dados (Bifásico)";
+                document.getElementById('lbl-distancia').innerText = "Distância do Ramal (B5)";
+                document.getElementById('lbl-potencia').innerText = "Soma de Potência Inversores (B6)";
+                document.getElementById('lbl-tensao').innerText = "Tensão do Sistema (B7)";
+                
+                singlePotContainer.classList.remove('hidden');
+                mistoPotContainer.classList.add('hidden');
+
+                selectTensao.innerHTML = `
+                    <option value="254" selected>254 V</option>
+                    <option value="220">220 V</option>
+                `;
+            } else if(tab === 'trifasico') {
+                document.getElementById('form-title').innerText = "Entrada de Dados (Trifásico)";
+                document.getElementById('lbl-distancia').innerText = "Distância do Ramal (B13)";
+                document.getElementById('lbl-potencia').innerText = "Soma de Potência Inversores (B14)";
+                document.getElementById('lbl-tensao').innerText = "Tensão do Sistema (B15)";
+
+                singlePotContainer.classList.remove('hidden');
+                mistoPotContainer.classList.add('hidden');
+
+                selectTensao.innerHTML = `
+                    <option value="220" selected>220 V</option>
+                    <option value="380">380 V</option>
+                `;
+            } else if(tab === 'misto') {
+                document.getElementById('form-title').innerText = "Entrada de Dados (Trifásico Misto)";
+                document.getElementById('lbl-distancia').innerText = "Distância do Ramal (B21)";
+                document.getElementById('lbl-tensao').innerText = "Tensão de Referência (B24)";
+
+                singlePotContainer.classList.add('hidden');
+                mistoPotContainer.classList.remove('hidden');
+
+                selectTensao.innerHTML = `
+                    <option value="220" selected>220 V</option>
+                    <option value="380">380 V</option>
+                `;
+            }
+
+            calculate();
+        }
+
+        // CONTROLADOR DE ACESSO DE ADMIN / GERENCIAL
+        function promptManager() {
+            const pw = prompt("Escreva a senha do Administrador para alterar as tabelas de preços:");
+            if(pw === "admin" || pw === "engenharia") {
+                document.getElementById('manager-config').classList.remove('hidden');
+                renderManagerTable();
+                document.getElementById('manager-config').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert("Senha incorreta.");
+            }
+        }
+
+        function renderManagerTable() {
+            const cabosTbody = document.getElementById('config-cabos-tbody');
+            cabosTbody.innerHTML = '';
+            Object.keys(pricingDB.cabos).forEach(bitola => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="py-2 font-bold text-slate-700">${bitola} mm²</td>
+                    <td class="py-2 pr-2">
+                        <input type="number" step="0.01" value="${pricingDB.cabos[bitola].triplex}" id="cfg-tri-${bitola}" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs font-semibold">
+                    </td>
+                    <td class="py-2">
+                        <input type="number" step="0.01" value="${pricingDB.cabos[bitola].quadruplex}" id="cfg-quad-${bitola}" class="w-full bg-slate-50 border border-slate-200 rounded p-1 text-xs font-semibold">
+                    </td>
+                `;
+                cabosTbody.appendChild(tr);
+            });
+
+            const pecasTbody = document.getElementById('config-pecas-tbody');
+            pecasTbody.innerHTML = '';
+            Object.keys(pricingDB.pecas).forEach(id => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="py-2 text-xs font-semibold text-slate-600">${id}</td>
+                    <td class="py-2">
+                        <input type="number" step="0.01" value="${pricingDB.pecas[id]}" id="cfg-peca-${id}" class="w-28 ml-auto block bg-slate-50 border border-slate-200 rounded p-1 text-xs font-bold text-right">
+                    </td>
+                `;
+                pecasTbody.appendChild(tr);
+            });
+        }
+
+        function closeManagerConfig() {
+            Object.keys(pricingDB.cabos).forEach(bitola => {
+                const triInput = document.getElementById(`cfg-tri-${bitola}`);
+                const quadInput = document.getElementById(`cfg-quad-${bitola}`);
+                if(triInput) pricingDB.cabos[bitola].triplex = parseFloat(triInput.value) || 0;
+                if(quadInput) pricingDB.cabos[bitola].quadruplex = parseFloat(quadInput.value) || 0;
+            });
+
+            Object.keys(pricingDB.pecas).forEach(id => {
+                const input = document.getElementById(`cfg-peca-${id}`);
+                if(input) pricingDB.pecas[id] = parseFloat(input.value) || 0;
+            });
+
+            document.getElementById('manager-config').classList.add('hidden');
+            calculate();
+        }
+
+        let activeAdicionaisList = [];
+        let activeAdicionaisTotal = 0;
+
+        function openMaterialsModal() {
+            const modal = document.getElementById('materials-modal');
+            const tbody = document.getElementById('materials-table-body');
+            tbody.innerHTML = '';
+
+            if (activeAdicionaisList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-slate-400">Nenhum material associado a esta bitola.</td></tr>`;
+                document.getElementById('modal-total-adicionais').innerText = "R$ 0,00";
+                modal.classList.remove('hidden');
+                return;
+            }
+
+            activeAdicionaisList.forEach(m => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="py-2.5 text-xs font-semibold text-slate-700">${m.desc}</td>
+                    <td class="py-2.5 text-center text-xs font-bold text-slate-600">${m.qtd} ${m.isPorPoste ? ' (Postes)' : ''}</td>
+                    <td class="py-2.5 text-right text-xs text-slate-500">${formatBRL(m.unitPrice)}</td>
+                    <td class="py-2.5 text-right text-xs font-bold text-slate-900">${formatBRL(m.totalPrice)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('modal-total-adicionais').innerText = formatBRL(activeAdicionaisTotal);
+            modal.classList.remove('hidden');
+        }
+
+        function closeMaterialsModal() {
+            document.getElementById('materials-modal').classList.add('hidden');
+        }
+
+        // ==========================================
+        //  SISTEMA CENTRAL DE PROCESSAMENTO E CÁLCULOS
+        // ==========================================
+        function calculate() {
+            const dist = parseFloat(document.getElementById('input-dist').value) || 0;
+            const pot = parseFloat(document.getElementById('input-pot').value) || 0;
+            const tens = parseFloat(document.getElementById('input-tensao').value) || 220;
+            
+            const potBi = parseFloat(document.getElementById('input-pot-bi').value) || 0;
+            const potTri = parseFloat(document.getElementById('input-pot-tri').value) || 0;
+
+            if (dist <= 0) {
+                resetOutputs();
+                return;
+            }
+
+            let correnteText = "";
+            let correnteCalculada = 0;
+            let secaoQT = 0;
+            let ramalEscolhido = "CONSULTAR ENGENHARIA";
+            let valorRamal = 0;
+            let valorPoste = 0;
+            let valorMO = 0;
+            let valorAdicionais = 0;
+
+            if (currentTab === 'bifasico') {
+                correnteCalculada = (pot * 1.1 * 1000) / tens;
+                correnteText = `${correnteCalculada.toFixed(2)} A`;
+                document.getElementById('lbl-formula-corrente').innerText = "Fórmula: (B6 * 1.1 * 1000) / B7";
+
+                secaoQT = (200 * 0.0282 * dist * correnteCalculada) / (4 * tens);
+                document.getElementById('lbl-formula-secao').innerText = "Fórmula Queda de Tensão (E3)";
+
+                ramalEscolhido = getBitolaComercial(secaoQT);
+
+                if (ramalEscolhido !== "CONSULTAR ENGENHARIA" && pricingDB.cabos[ramalEscolhido]) {
+                    valorRamal = pricingDB.cabos[ramalEscolhido].triplex * dist;
+                }
+
+                valorMO = Math.max(0, (dist - 20)) * 10;
+
+            } else if (currentTab === 'trifasico') {
+                correnteCalculada = (pot * 1.1 * 1000) / (tens * 1.73);
+                correnteText = `${correnteCalculada.toFixed(2)} A`;
+                document.getElementById('lbl-formula-corrente').innerText = "Fórmula: ((B14 * 1.1 * 1000) / (B15 * 1.73))";
+
+                secaoQT = (100 * 1.732 * 0.0282 * dist * correnteCalculada) / (4 * tens);
+                document.getElementById('lbl-formula-secao').innerText = "Fórmula Queda de Tensão (E11)";
+
+                ramalEscolhido = getBitolaComercial(secaoQT);
+
+                if (ramalEscolhido !== "CONSULTAR ENGENHARIA" && pricingDB.cabos[ramalEscolhido]) {
+                    valorRamal = pricingDB.cabos[ramalEscolhido].quadruplex * dist;
+                }
+
+                valorMO = Math.max(0, (dist - 20)) * 12;
+
+            } else if (currentTab === 'misto') {
+                const corrBi = (potBi * 1.1 * 1000) / 220;
+                const corrTri = (potTri * 1.1 * 1000) / (tens * 1.73);
+                
+                const corrSomada = corrBi + corrTri;
+                correnteCalculada = corrSomada;
+                correnteText = `Bi: ${corrBi.toFixed(1)}A | Tri: ${corrTri.toFixed(1)}A`;
+                document.getElementById('lbl-formula-corrente').innerText = "C22 + C23 (Somatório de Correntes)";
+
+                secaoQT = (100 * 1.732 * 0.0282 * dist * corrSomada) / (4 * tens);
+                document.getElementById('lbl-formula-secao').innerText = "Fórmula Queda de Tensão (E19)";
+
+                ramalEscolhido = getBitolaComercial(secaoQT);
+
+                if (ramalEscolhido !== "CONSULTAR ENGENHARIA" && pricingDB.cabos[ramalEscolhido]) {
+                    valorRamal = pricingDB.cabos[ramalEscolhido].quadruplex * dist;
+                }
+
+                valorMO = Math.max(0, (dist - 20)) * 12;
+            }
+
+            let postesSugeridos = 1;
+            if (ramalEscolhido !== "CONSULTAR ENGENHARIA") {
+                const bitolaNum = parseFloat(ramalEscolhido);
+                if (bitolaNum <= 50) {
+                    postesSugeridos = Math.ceil(dist / 40);
+                } else {
+                    postesSugeridos = Math.ceil(dist / 30);
+                }
+            } else {
+                postesSugeridos = Math.ceil(dist / 40);
+            }
+            document.getElementById('sugestao-postes-badge').innerText = `Sugerido: ${postesSugeridos}`;
+
+            const postesUtilizados = parseFloat(document.getElementById('input-postes').value) || 0;
+            valorPoste = postesUtilizados * 400;
+
+            activeAdicionaisList = [];
+            activeAdicionaisTotal = 0;
+
+            if (ramalEscolhido !== "CONSULTAR ENGENHARIA" && materiaisPorBitola[ramalEscolhido]) {
+                const listaMateriais = materiaisPorBitola[ramalEscolhido];
+                document.getElementById('modal-bitola-title').innerText = ramalEscolhido;
+
+                listaMateriais.forEach(m => {
+                    const qtdCalculada = m.porPoste ? (m.baseQtd * postesUtilizados) : m.baseQtd;
+                    const precoPeca = pricingDB.pecas[m.id] || 0;
+                    const totalPeca = qtdCalculada * precoPeca;
+
+                    activeAdicionaisList.push({
+                        desc: m.desc,
+                        qtd: qtdCalculada,
+                        unitPrice: precoPeca,
+                        totalPrice: totalPeca,
+                        isPorPoste: m.porPoste
+                    });
+
+                    activeAdicionaisTotal += totalPeca;
+                });
+
+                valorAdicionais = activeAdicionaisTotal;
+            } else {
+                document.getElementById('modal-bitola-title').innerText = "--";
+                valorAdicionais = 300;
+            }
+
+            const valorTotal = valorRamal + valorPoste + valorMO + valorAdicionais;
+
+            document.getElementById('out-corrente-container').innerText = correnteText;
+            document.getElementById('out-secao-teorica').innerText = secaoQT.toFixed(2);
+            document.getElementById('out-ramal-escolhido').innerText = ramalEscolhido;
+            document.getElementById('out-un-ramal').innerText = (ramalEscolhido === "CONSULTAR ENGENHARIA") ? "" : " mm²";
+
+            document.getElementById('fin-ramal').innerText = formatBRL(valorRamal);
+            document.getElementById('fin-poste').innerText = formatBRL(valorPoste);
+            document.getElementById('fin-mo').innerText = formatBRL(valorMO);
+            document.getElementById('fin-adicional').innerText = formatBRL(valorAdicionais);
+            document.getElementById('fin-total').innerText = formatBRL(valorTotal);
+        }
+
+        function getBitolaComercial(secao) {
+            const bitolas = [16, 25, 35, 50, 70, 95, 120];
+            for (let i = 0; i < bitolas.length; i++) {
+                if (secao <= bitolas[i]) {
+                    return bitolas[i];
+                }
+            }
+            return "CONSULTAR ENGENHARIA";
+        }
+
+        function resetOutputs() {
+            document.getElementById('out-corrente-container').innerText = "-- A";
+            document.getElementById('out-secao-teorica').innerText = "--";
+            document.getElementById('out-ramal-escolhido').innerText = "--";
+            document.getElementById('fin-ramal').innerText = "R$ 0,00";
+            document.getElementById('fin-poste').innerText = "R$ 0,00";
+            document.getElementById('fin-mo').innerText = "R$ 0,00";
+            document.getElementById('fin-adicional').innerText = "R$ 0,00";
+            document.getElementById('fin-total').innerText = "R$ 0,00";
+        }
+
+        function formatBRL(val) {
+            return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function generateProposal() {
+            const dist = document.getElementById('input-dist').value;
+            const pot = document.getElementById('input-pot').value;
+            const tens = document.getElementById('input-tensao').value;
+            const postes = document.getElementById('input-postes').value;
+
+            const potBi = document.getElementById('input-pot-bi').value;
+            const potTri = document.getElementById('input-pot-tri').value;
+
+            const corrente = document.getElementById('out-corrente-container').innerText;
+            const secaoQT = document.getElementById('out-secao-teorica').innerText;
+            const bitola = document.getElementById('out-ramal-escolhido').innerText;
+
+            const vRamal = document.getElementById('fin-ramal').innerText;
+            const vPostes = document.getElementById('fin-poste').innerText;
+            const vMO = document.getElementById('fin-mo').innerText;
+            const vAdd = document.getElementById('fin-adicional').innerText;
+            const vTotal = document.getElementById('fin-total').innerText;
+
+            let tituloPadrao = "PADRÃO BIFÁSICO";
+            const rowSingle = document.getElementById('prop-pot-row-single');
+            const rowMisto = document.getElementById('prop-pot-row-misto');
+
+            if(currentTab === 'bifasico') {
+                tituloPadrao = "PADRÃO BIFÁSICO (RAMAL TRIPLEX)";
+                rowSingle.style.display = 'table-row';
+                rowMisto.style.display = 'none';
+            } else if(currentTab === 'trifasico') {
+                tituloPadrao = "PADRÃO TRIFÁSICO (RAMAL QUADRUPLEX)";
+                rowSingle.style.display = 'table-row';
+                rowMisto.style.display = 'none';
+            } else if(currentTab === 'misto') {
+                tituloPadrao = "PADRÃO TRIFÁSICO MISTO (RAMAL QUADRUPLEX)";
+                rowSingle.style.display = 'none';
+                rowMisto.style.display = 'table-row';
+            }
+
+            document.getElementById('prop-padrão-titulo').innerText = tituloPadrao;
+
+            document.getElementById('prop-data').innerText = new Date().toLocaleDateString('pt-PT');
+            document.getElementById('prop-ref').innerText = Math.floor(1000 + Math.random() * 9000);
+
+            document.getElementById('prop-dist').innerText = dist;
+            document.getElementById('prop-pot').innerText = pot;
+            document.getElementById('prop-pot-bi').innerText = potBi;
+            document.getElementById('prop-pot-tri').innerText = potTri;
+            document.getElementById('prop-tens').innerText = tens;
+            document.getElementById('prop-postes').innerText = postes;
+
+            document.getElementById('prop-corrente').innerText = corrente;
+            document.getElementById('prop-secao').innerText = secaoQT;
+            document.getElementById('prop-bitola').innerText = bitola;
+
+            document.getElementById('prop-v-ramal').innerText = vRamal;
+            document.getElementById('prop-v-postes').innerText = vPostes;
+            document.getElementById('prop-v-mo').innerText = vMO;
+            document.getElementById('prop-v-add').innerText = vAdd;
+            document.getElementById('prop-v-total').innerText = vTotal;
+
+            window.print();
+        }
+
+        switchTab('bifasico');
+    </script>
+</body>
+</html>
