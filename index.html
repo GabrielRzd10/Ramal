@@ -2,15 +2,8 @@
 <html lang="pt-pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dimensionador de Ramais & Proposta Comercial</title>
-    
-    <!-- Configurações para se comportar como Aplicativo no iPhone (PWA iOS) -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Ramal Vendas">
-    <link rel="apple-touch-icon" href="https://placehold.co/180x180/4f46e5/ffffff?text=Ramal">
-
     <!-- Tailwind CSS para design premium moderno -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,19 +12,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
-        /* STREAMING_CHUNK: Definindo fontes e estilos globais... */
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #f8fafc;
-            /* Suporte para notch de iPhones modernos em modo tela cheia */
-            padding-top: env(safe-area-inset-top);
         }
 
         /* ESTILOS DE IMPRESSÃO - CORREÇÃO DE PÁGINA EM BRANCO */
         @media print {
+            /* Esconde absolutamente todos os elementos da UI do sistema */
             .no-print {
                 display: none !important;
             }
+            /* Torna a proposta visível e força layout de bloco */
             .print-only {
                 display: block !important;
                 background: white !important;
@@ -49,24 +41,23 @@
 </head>
 <body class="min-h-screen text-slate-800 flex flex-col justify-between">
 
-    <!-- STREAMING_CHUNK: Construindo a UI principal do sistema... -->
     <!-- UI DO SISTEMA (NÃO IMPRESSO) -->
     <div class="no-print flex-grow flex flex-col">
         <!-- HEADER -->
         <header class="bg-gradient-to-r from-slate-900 via-slate-950 to-indigo-950 text-white shadow-md py-4 px-6">
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-3">
-                    <div class="bg-indigo-600 p-2.5 rounded-xl text-white shadow-lg">
-                        <i class="fa-solid fa-solar-panel text-2xl animate-pulse"></i>
+                <div class="flex items-center gap-4">
+                    <div class="bg-white p-1.5 rounded-xl shadow-lg max-w-[100px] md:max-w-[120px]">
+                        <img src="LOGO MATRIZ SOLAR.png" alt="Matriz Solar" class="w-full h-auto object-contain" onerror="this.src='https://placehold.co/120x120/ffffff/4f46e5?text=Matriz+Solar'">
                     </div>
                     <div>
-                        <h1 class="text-xl font-bold tracking-tight">Cálculo de Ramais & Propostas</h1>
-                        <p class="text-xs text-indigo-200">Plataforma Comercial de Engenharia</p>
+                        <h1 class="text-2xl font-extrabold tracking-tight">Cálculo de Ramais & Propostas</h1>
+                        <p class="text-sm font-bold text-indigo-300">Plataforma Comercial de Engenharia</p>
                     </div>
                 </div>
                 
                 <div class="flex items-center gap-3">
-                    <button onclick="promptManager()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2 border border-slate-700">
+                    <button onclick="promptManager()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2 border border-slate-700">
                         <i class="fa-solid fa-gears text-indigo-400"></i> Ajustar Preços (Gerente)
                     </button>
                 </div>
@@ -75,21 +66,19 @@
 
         <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
             
-            <!-- STREAMING_CHUNK: Renderizando abas de navegação... -->
             <!-- ABAS DE NAVEGAÇÃO DOS PADRÕES -->
             <div class="bg-white p-2.5 rounded-xl shadow-sm border border-slate-200 flex flex-wrap gap-2">
-                <button onclick="switchTab('bifasico')" id="tab-bifasico" class="flex-1 py-3 px-4 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-sm">
+                <button onclick="switchTab('bifasico')" id="tab-bifasico" class="flex-1 py-3 px-4 rounded-lg font-black text-sm tracking-wide transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-sm">
                     <i class="fa-solid fa-bolt"></i> Padrão Bifásico
                 </button>
-                <button onclick="switchTab('trifasico')" id="tab-trifasico" class="flex-1 py-3 px-4 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 bg-slate-50 text-slate-600 hover:bg-slate-100">
+                <button onclick="switchTab('trifasico')" id="tab-trifasico" class="flex-1 py-3 px-4 rounded-lg font-black text-sm tracking-wide transition flex items-center justify-center gap-2 bg-slate-50 text-slate-600 hover:bg-slate-100">
                     <i class="fa-solid fa-bolt-lightning"></i> Padrão Trifásico
                 </button>
-                <button onclick="switchTab('misto')" id="tab-misto" class="flex-1 py-3 px-4 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 bg-slate-50 text-slate-600 hover:bg-slate-100">
+                <button onclick="switchTab('misto')" id="tab-misto" class="flex-1 py-3 px-4 rounded-lg font-black text-sm tracking-wide transition flex items-center justify-center gap-2 bg-slate-50 text-slate-600 hover:bg-slate-100">
                     <i class="fa-solid fa-shuffle"></i> Trifásico "Misto"
                 </button>
             </div>
 
-            <!-- STREAMING_CHUNK: Organizando formulários de entrada... -->
             <!-- ÁREA DA CALCULADORA ATIVA -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
@@ -98,72 +87,71 @@
                     <div>
                         <div class="flex items-center gap-2 border-b border-slate-100 pb-3 mb-6">
                             <i class="fa-solid fa-sliders text-indigo-600 text-lg"></i>
-                            <h2 class="text-lg font-bold text-slate-900" id="form-title">Dados de Entrada</h2>
+                            <h2 class="text-xl font-extrabold text-slate-900" id="form-title">Dados de Entrada</h2>
                         </div>
 
                         <div class="space-y-5">
                             <!-- Distância -->
                             <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-1" id="lbl-distancia">Comprimento do Ramal (B5)</label>
+                                <label class="block text-sm font-bold text-slate-700 mb-1" id="lbl-distancia">Comprimento do Ramal (B5)</label>
                                 <div class="relative">
-                                    <input type="number" id="input-dist" value="100" min="1" oninput="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 pl-4 pr-12 text-slate-900 font-bold outline-none transition">
-                                    <span class="absolute right-4 top-3.5 text-slate-400 text-sm font-bold">m</span>
+                                    <input type="number" id="input-dist" value="100" min="1" oninput="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 pl-4 pr-12 text-slate-900 font-black outline-none transition">
+                                    <span class="absolute right-4 top-3.5 text-slate-400 text-sm font-black">m</span>
                                 </div>
                             </div>
 
                             <!-- Potências do Inversor (Condicional) -->
                             <div id="pot-single-container">
-                                <label class="block text-sm font-semibold text-slate-700 mb-1" id="lbl-potencia">Potência dos Inversores (B6)</label>
+                                <label class="block text-sm font-bold text-slate-700 mb-1" id="lbl-potencia">Soma de Potência Inversores bifásicos</label>
                                 <div class="relative">
-                                    <input type="number" id="input-pot" value="7.5" step="0.1" min="0.1" oninput="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 pl-4 pr-12 text-slate-900 font-bold outline-none transition">
-                                    <span class="absolute right-4 top-3.5 text-slate-400 text-sm font-bold">kW</span>
+                                    <input type="number" id="input-pot" value="7.5" step="0.1" min="0.1" oninput="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 pl-4 pr-12 text-slate-900 font-black outline-none transition">
+                                    <span class="absolute right-4 top-3.5 text-slate-400 text-sm font-black">kW</span>
                                 </div>
                             </div>
 
                             <div id="pot-misto-container" class="hidden space-y-4">
                                 <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Inversores Bifásicos (B22)</label>
+                                    <label class="block text-sm font-bold text-slate-700 mb-1">Inversores Bifásicos (B22)</label>
                                     <div class="relative">
-                                        <input type="number" id="input-pot-bi" value="5" step="0.1" min="0" oninput="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 pl-4 pr-12 text-slate-900 font-bold outline-none transition">
-                                        <span class="absolute right-4 top-3.5 text-slate-400 text-sm font-bold">kW</span>
+                                        <input type="number" id="input-pot-bi" value="5" step="0.1" min="0" oninput="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 pl-4 pr-12 text-slate-900 font-black outline-none transition">
+                                        <span class="absolute right-4 top-3.5 text-slate-400 text-sm font-black">kW</span>
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Inversores Trifásicos (B23)</label>
+                                    <label class="block text-sm font-bold text-slate-700 mb-1">Inversores Trifásicos (B23)</label>
                                     <div class="relative">
-                                        <input type="number" id="input-pot-tri" value="15" step="0.1" min="0" oninput="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 pl-4 pr-12 text-slate-900 font-bold outline-none transition">
-                                        <span class="absolute right-4 top-3.5 text-slate-400 text-sm font-bold">kW</span>
+                                        <input type="number" id="input-pot-tri" value="15" step="0.1" min="0" oninput="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 pl-4 pr-12 text-slate-900 font-black outline-none transition">
+                                        <span class="absolute right-4 top-3.5 text-slate-400 text-sm font-black">kW</span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Tensão -->
                             <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-1" id="lbl-tensao">Tensão do Sistema (B7)</label>
-                                <select id="input-tensao" onchange="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 px-4 text-slate-900 font-bold outline-none transition appearance-none">
-                                    <!-- Populado dinamicamente via JS -->
+                                <label class="block text-sm font-bold text-slate-700 mb-1" id="lbl-tensao">Tensão do Sistema (B7)</label>
+                                <select id="input-tensao" onchange="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 px-4 text-slate-900 font-black outline-none transition appearance-none">
+                                    <!-- Options populated dynamically -->
                                 </select>
                             </div>
 
                             <!-- Quantidade de Postes Utilizada -->
                             <div>
                                 <div class="flex justify-between items-center mb-1">
-                                    <label class="block text-sm font-semibold text-slate-700">Qtd. de Postes Utilizada (Z10)</label>
-                                    <span class="text-xs font-bold bg-indigo-50 text-indigo-600 px-2.5 py-0.5 rounded-full" id="sugestao-postes-badge">Sugerido: --</span>
+                                    <label class="block text-sm font-bold text-slate-700">Qtd. de Postes Utilizada (Z10)</label>
+                                    <span class="text-xs font-black bg-indigo-50 text-indigo-600 px-2.5 py-0.5 rounded-full" id="sugestao-postes-badge">Sugerido: --</span>
                                 </div>
-                                <input type="number" id="input-postes" value="4" min="0" oninput="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 px-4 text-slate-900 font-bold outline-none transition">
+                                <input type="number" id="input-postes" value="4" min="0" oninput="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 px-4 text-slate-900 font-black outline-none transition">
                             </div>
                         </div>
                     </div>
 
                     <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl text-xs text-indigo-900 space-y-1">
                         <p class="font-bold"><i class="fa-solid fa-circle-info mr-1 text-indigo-600"></i>Regra de Distribuição de Postes:</p>
-                        <p>• Bitola até <strong>50mm²</strong>: 1 poste a cada 40 metros de ramal.</p>
-                        <p>• Bitola acima de <strong>50mm²</strong>: 1 poste a cada 30 metros de ramal.</p>
+                        <p class="font-semibold">• Bitola até <strong>50mm²</strong>: 1 poste a cada 40 metros de ramal.</p>
+                        <p class="font-semibold">• Bitola acima de <strong>50mm²</strong>: 1 poste a cada 30 metros de ramal.</p>
                     </div>
                 </div>
 
-                <!-- STREAMING_CHUNK: Processando cards de engenharia... -->
                 <!-- COLUNA DIREITA: RESULTADOS & CÁLCULOS -->
                 <div class="lg:col-span-7 space-y-6">
                     
@@ -171,7 +159,7 @@
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-150">
                         <div class="flex items-center gap-2 border-b border-slate-100 pb-3 mb-5">
                             <i class="fa-solid fa-circle-nodes text-indigo-600 text-lg"></i>
-                            <h2 class="text-lg font-bold text-slate-900">Análise de Engenharia</h2>
+                            <h2 class="text-xl font-extrabold text-slate-900">Análise de Engenharia</h2>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -179,9 +167,9 @@
                             <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center flex flex-col justify-between">
                                 <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Corrente Calculada</span>
                                 <div class="my-2" id="box-corrente-misto">
-                                    <div id="out-corrente-container" class="text-2xl font-extrabold text-slate-900">-- A</div>
+                                    <div id="out-corrente-container" class="text-2xl font-extrabold text-slate-900 leading-snug">-- A</div>
                                 </div>
-                                <span class="text-[10px] text-slate-400" id="lbl-formula-corrente">Fórmula do Padrão</span>
+                                <span class="text-[10px] text-slate-400 font-semibold" id="lbl-formula-corrente">Fórmula do Padrão</span>
                             </div>
 
                             <!-- Seção Calculada -->
@@ -191,7 +179,7 @@
                                     <span id="out-secao-teorica" class="text-2xl font-extrabold text-slate-900">--</span>
                                     <span class="text-sm font-bold text-slate-500"> mm²</span>
                                 </div>
-                                <span class="text-[10px] text-slate-400" id="lbl-formula-secao">Queda de Tensão (QT)</span>
+                                <span class="text-[10px] text-slate-400 font-semibold" id="lbl-formula-secao">Queda de Tensão (QT)</span>
                             </div>
 
                             <!-- Ramal Escolhido -->
@@ -201,48 +189,53 @@
                                     <span id="out-ramal-escolhido" class="text-3xl font-extrabold text-indigo-600">--</span>
                                     <span class="text-sm font-bold text-indigo-500" id="out-un-ramal"> mm²</span>
                                 </div>
-                                <span class="text-[10px] text-indigo-400">Próxima bitola comercial de mercado</span>
+                                <span class="text-[10px] text-indigo-400 font-semibold">Próxima bitola comercial comercializável</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- STREAMING_CHUNK: Desenhando composição comercial... -->
                     <!-- COMPOSIÇÃO DE VALORES -->
                     <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl border border-slate-800">
                         <div class="flex items-center gap-2 border-b border-slate-800 pb-3 mb-5">
                             <i class="fa-solid fa-coins text-emerald-400 text-lg"></i>
-                            <h2 class="text-lg font-bold">Composição Comercial</h2>
+                            <h2 class="text-xl font-extrabold">Composição Comercial</h2>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Detalhado -->
                             <div class="space-y-3.5 text-sm">
                                 <div class="flex justify-between border-b border-slate-800 pb-2">
-                                    <span class="text-slate-400">Valor do Ramal:</span>
+                                    <span class="text-slate-400 font-semibold">Valor do Ramal:</span>
                                     <span id="fin-ramal" class="font-bold text-slate-200">R$ 0,00</span>
                                 </div>
                                 <div class="flex justify-between border-b border-slate-800 pb-2">
-                                    <span class="text-slate-400">Valor dos Postes:</span>
+                                    <span class="text-slate-400 font-semibold">Valor dos Postes:</span>
                                     <span id="fin-poste" class="font-bold text-slate-200">R$ 0,00</span>
                                 </div>
                                 <div class="flex justify-between border-b border-slate-800 pb-2">
-                                    <span class="text-slate-400">Mão de Obra (M-O):</span>
+                                    <span class="text-slate-400 font-semibold">Mão de Obra (M-O):</span>
                                     <span id="fin-mo" class="font-bold text-slate-200">R$ 0,00</span>
                                 </div>
                                 <div class="flex justify-between border-b border-slate-800 pb-2 relative group cursor-pointer" onclick="openMaterialsModal()">
-                                    <span class="text-slate-400 underline decoration-dotted hover:text-indigo-300">Valor Adicional (Materiais) <i class="fa-solid fa-circle-question text-xs"></i>:</span>
+                                    <span class="text-slate-400 font-bold underline decoration-dotted hover:text-indigo-300">Valor Adicional (Materiais) <i class="fa-solid fa-circle-question text-xs"></i>:</span>
                                     <span id="fin-adicional" class="font-bold text-emerald-300">R$ 0,00</span>
                                 </div>
                             </div>
 
                             <!-- Totalização -->
                             <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-800 flex flex-col justify-between items-center text-center">
-                                <div>
-                                    <span class="text-xs font-bold text-indigo-300 uppercase tracking-wider">Investimento Total Estimado</span>
+                                <div class="w-full">
+                                    <span class="text-xs font-black text-indigo-300 uppercase tracking-wider">Investimento Total Estimado</span>
                                     <div class="text-3xl font-black text-emerald-400 mt-1" id="fin-total">R$ 0,00</div>
+                                    <!-- Monday Link Container (Oculto por padrão) -->
+                                    <div id="monday-btn-container" class="hidden w-full mt-2">
+                                        <a href="https://forms.monday.com/forms/8942d03433ed095ffa4ee2a3e5375824?r=use1&s=4" target="_blank" class="block w-full bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black py-2.5 px-4 rounded-xl transition duration-200 uppercase tracking-wide shadow-md flex items-center justify-center gap-1.5">
+                                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Solicitar orçamento para engenharia
+                                        </a>
+                                    </div>
                                 </div>
                                 
-                                <button onclick="generateProposal()" class="w-full mt-4 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold py-3 px-4 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-lg">
+                                <button id="btn-gerar-proposta" onclick="generateProposal()" class="w-full mt-4 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold py-3 px-4 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-lg">
                                     <i class="fa-solid fa-file-pdf"></i> Gerar Orçamento Comercial
                                 </button>
                             </div>
@@ -253,7 +246,6 @@
 
             </div>
 
-            <!-- STREAMING_CHUNK: Estruturando os modais dinâmicos... -->
             <!-- MODAL DE LISTA DE MATERIAIS ADICIONAIS -->
             <div id="materials-modal" class="hidden fixed inset-0 bg-slate-950/75 flex items-center justify-center p-4 z-50">
                 <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4">
@@ -274,7 +266,7 @@
                                 </tr>
                             </thead>
                             <tbody id="materials-table-body" class="divide-y divide-slate-100 text-slate-700">
-                                <!-- Preenchido dinamicamente via JS -->
+                                <!-- Preenchido dinamicamente -->
                             </tbody>
                         </table>
                     </div>
@@ -285,7 +277,6 @@
                 </div>
             </div>
 
-            <!-- STREAMING_CHUNK: Estruturando o módulo do gerente... -->
             <!-- CONFIGURADOR DE PREÇOS (GERENTE) -->
             <div id="manager-config" class="hidden bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
                 <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -341,7 +332,7 @@
         </main>
 
         <!-- RODAPÉ -->
-        <footer class="bg-slate-950 text-slate-500 py-4 px-6 text-center text-xs border-t border-slate-900">
+        <footer class="bg-slate-950 text-slate-500 py-4 px-6 text-center text-xs border-t border-slate-900 font-bold">
             Dimensionador Comercial Universal • Em conformidade com as regras NBR 5410 de queda de tensão.
         </footer>
     </div>
@@ -350,18 +341,22 @@
     <!-- ========================================== -->
     <!--  PROPOSTA COMERCIAL IMPRIMÍVEL (A4)         -->
     <!-- ========================================== -->
-    <!-- STREAMING_CHUNK: Estruturando o template de impressão do PDF... -->
     <div id="printable-proposal" class="hidden print-only">
         <div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 800px; margin: 0 auto; padding: 20px;">
-            <!-- Cabeçalho Principal -->
+            <!-- Cabeçalho Principal com Logo -->
             <table style="width: 100%; border-bottom: 3px solid #4f46e5; padding-bottom: 20px; margin-bottom: 25px;">
                 <tr>
-                    <td>
+                    <td style="vertical-align: middle;">
                         <h1 style="font-size: 26px; font-weight: 800; color: #0f172a; margin: 0; text-transform: uppercase;">Proposta Comercial & Técnica</h1>
                         <p style="font-size: 14px; color: #4f46e5; margin: 5px 0 0 0; font-weight: bold;" id="prop-padrão-titulo">PADRÃO BIFÁSICO</p>
                     </td>
-                    <td style="text-align: right; font-size: 13px; color: #64748b; line-height: 1.6;">
-                        <strong>Data de Geração:</strong> <span id="prop-data">--</span><br>
+                    <td style="text-align: right; vertical-align: middle; width: 180px;">
+                        <img src="LOGO MATRIZ SOLAR.png" alt="Matriz Solar" style="max-width: 150px; height: auto; display: inline-block;" onerror="this.src='https://placehold.co/150x150/ffffff/4f46e5?text=Matriz+Solar'">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align: right; font-size: 12px; color: #64748b; padding-top: 5px;">
+                        <strong>Data de Geração:</strong> <span id="prop-data">--</span> &bull; 
                         <strong>Ref:</strong> PROP-ENG-<span id="prop-ref">--</span>
                     </td>
                 </tr>
@@ -379,7 +374,7 @@
                                 <td style="font-weight: bold; text-align: right;"><span id="prop-dist">--</span> m</td>
                             </tr>
                             <tr id="prop-pot-row-single">
-                                <td style="color: #64748b;">Potência Geradores Solar:</td>
+                                <td style="color: #64748b;" id="lbl-prop-pot">Soma de Potência Inversores:</td>
                                 <td style="font-weight: bold; text-align: right;"><span id="prop-pot">--</span> kW</td>
                             </tr>
                             <tr id="prop-pot-row-misto" style="display: none;">
@@ -403,7 +398,7 @@
                         <table style="width: 100%; font-size: 13px; line-height: 2.2;">
                             <tr>
                                 <td style="color: #64748b;">Corrente Máxima de Inversores:</td>
-                                <td style="font-weight: bold; text-align: right;"><span id="prop-corrente">--</span> A</td>
+                                <td style="font-weight: bold; text-align: right;" id="prop-corrente">-- A</td>
                             </tr>
                             <tr>
                                 <td style="color: #64748b;">Seção Teórica Estimada (QT):</td>
@@ -421,7 +416,9 @@
             <!-- Orçamento de Investimento -->
             <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 30px;">
                 <h3 style="font-size: 13px; font-weight: 800; color: #1e293b; text-transform: uppercase; margin-top: 0; margin-bottom: 18px; border-bottom: 2px solid #cbd5e1; padding-bottom: 6px;">Composição Comercial</h3>
-                <table style="width: 100%; font-size: 14px; line-height: 2.4;">
+                
+                <!-- Orçamento de Valores (Ocultado se Consultar Engenharia) -->
+                <table style="width: 100%; font-size: 14px; line-height: 2.4;" id="prop-composition-table">
                     <tr>
                         <td style="color: #475569;">Valor de Aquisição de Cabo de Ramal:</td>
                         <td style="font-weight: bold; text-align: right; color: #0f172a;" id="prop-v-ramal">--</td>
@@ -443,6 +440,12 @@
                         <td style="text-align: right; color: #16a34a; padding-top: 15px;" id="prop-v-total">--</td>
                     </tr>
                 </table>
+
+                <!-- Monday Link no PDF -->
+                <div id="prop-monday-link" style="display: none; text-align: center; padding: 15px 0;">
+                    <p style="font-size: 16px; font-weight: bold; color: #b45309; margin: 0 0 10px 0;">Este projeto necessita de análise especial da Engenharia da Matriz Solar.</p>
+                    <a href="https://forms.monday.com/forms/8942d03433ed095ffa4ee2a3e5375824?r=use1&s=4" target="_blank" style="display: inline-block; background-color: #d97706; color: white; font-weight: 800; font-size: 14px; text-decoration: none; padding: 12px 25px; border-radius: 8px; text-transform: uppercase;">Solicitar orçamento para engenharia</a>
+                </div>
             </div>
 
             <!-- Termo de Aprovação Técnica -->
@@ -453,12 +456,12 @@
                 <!-- Linhas de assinatura -->
                 <table style="width: 100%; margin-top: 40px; border-collapse: collapse;">
                     <tr>
-                        <td style="width: 45%; border-top: 1px solid #cbd5e1; text-align: center; padding-top: 8px;">
-                            <strong>Responsável Técnico</strong><br>Departamento de Engenharia
+                        <td style="width: 45%; border-top: 1px solid #cbd5e1; text-align: center; padding-top: 8px; font-weight: bold;">
+                            Responsável Técnico<br><span style="font-size: 10px; font-weight: normal; color: #64748b;">Departamento de Engenharia</span>
                         </td>
                         <td style="width: 10%;"></td>
-                        <td style="width: 45%; border-top: 1px solid #cbd5e1; text-align: center; padding-top: 8px;">
-                            <strong>Aprovação Comercial</strong><br>Cliente Responsável
+                        <td style="width: 45%; border-top: 1px solid #cbd5e1; text-align: center; padding-top: 8px; font-weight: bold;">
+                            Aprovação Comercial<br><span style="font-size: 10px; font-weight: normal; color: #64748b;">Cliente Responsável</span>
                         </td>
                     </tr>
                 </table>
@@ -468,21 +471,20 @@
 
 
     <!-- CONTROLADOR DO FLUXO JAVASCRIPT -->
-    <!-- STREAMING_CHUNK: Implementando toda a lógica de processamento JavaScript... -->
     <script>
         // Memória de Estado Global da Aplicação
         let currentTab = 'bifasico';
 
-        // Base de Dados de Preços das tabelas Y e Z da Imagem 022ddf.png
+        // Base de Dados de Preços das tabelas Y e Z da Imagem image_57a43d.png atualizados
         const pricingDB = {
             cabos: {
                 "16":  { triplex: 9.59,  quadruplex: 13.12 },
-                "25":  { triplex: 14.28, quadruplex: 18.00 },
-                "35":  { triplex: 13.65, quadruplex: 28.54 },
-                "50":  { triplex: 18.90, quadruplex: 30.72 },
-                "70":  { triplex: 33.76, quadruplex: 30.30 },
-                "95":  { triplex: 48.36, quadruplex: 61.90 },
-                "120": { triplex: 61.08, quadruplex: 74.60 },
+                "25":  { triplex: 14.28, quadruplex: 21.44 },
+                "35":  { triplex: 13.63, quadruplex: 28.54 },
+                "50":  { triplex: 18.90, quadruplex: 35.07 },
+                "70":  { triplex: 36.19, quadruplex: 41.60 },
+                "95":  { triplex: 47.60, quadruplex: 56.00 },
+                "120": { triplex: 57.80, quadruplex: 68.00 },
                 "150": { triplex: 38.18, quadruplex: 43.50 } // Fallback de segurança
             },
             pecas: {
@@ -591,9 +593,9 @@
 
             Object.keys(buttons).forEach(key => {
                 if(key === tab) {
-                    buttons[key].className = "flex-1 py-3 px-4 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-sm";
+                    buttons[key].className = "flex-1 py-3 px-4 rounded-lg font-black text-sm tracking-wide transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-sm";
                 } else {
-                    buttons[key].className = "flex-1 py-3 px-4 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 bg-slate-50 text-slate-600 hover:bg-slate-100";
+                    buttons[key].className = "flex-1 py-3 px-4 rounded-lg font-black text-sm tracking-wide transition flex items-center justify-center gap-2 bg-slate-50 text-slate-600 hover:bg-slate-100";
                 }
             });
 
@@ -604,7 +606,7 @@
             if(tab === 'bifasico') {
                 document.getElementById('form-title').innerText = "Entrada de Dados (Bifásico)";
                 document.getElementById('lbl-distancia').innerText = "Distância do Ramal (B5)";
-                document.getElementById('lbl-potencia').innerText = "Soma de Potência Inversores (B6)";
+                document.getElementById('lbl-potencia').innerText = "Soma de Potência Inversores bifásicos";
                 document.getElementById('lbl-tensao').innerText = "Tensão do Sistema (B7)";
                 
                 singlePotContainer.classList.remove('hidden');
@@ -617,7 +619,7 @@
             } else if(tab === 'trifasico') {
                 document.getElementById('form-title').innerText = "Entrada de Dados (Trifásico)";
                 document.getElementById('lbl-distancia').innerText = "Distância do Ramal (B13)";
-                document.getElementById('lbl-potencia').innerText = "Soma de Potência Inversores (B14)";
+                document.getElementById('lbl-potencia').innerText = "Soma de Potência Inversores trifásicos";
                 document.getElementById('lbl-tensao').innerText = "Tensão do Sistema (B15)";
 
                 singlePotContainer.classList.remove('hidden');
@@ -763,6 +765,7 @@
             let valorMO = 0;
             let valorAdicionais = 0;
 
+            // 1. CÁLCULOS POR ABA / PADRÃO SELECIONADO
             if (currentTab === 'bifasico') {
                 correnteCalculada = (pot * 1.1 * 1000) / tens;
                 correnteText = `${correnteCalculada.toFixed(2)} A`;
@@ -801,7 +804,8 @@
                 
                 const corrSomada = corrBi + corrTri;
                 correnteCalculada = corrSomada;
-                correnteText = `Bi: ${corrBi.toFixed(1)}A | Tri: ${corrTri.toFixed(1)}A`;
+                // Quebra de texto aplicada: BI acima, TRI abaixo
+                correnteText = `Bi: ${corrBi.toFixed(1)} A<br>Tri: ${corrTri.toFixed(1)} A`;
                 document.getElementById('lbl-formula-corrente').innerText = "C22 + C23 (Somatório de Correntes)";
 
                 secaoQT = (100 * 1.732 * 0.0282 * dist * corrSomada) / (4 * tens);
@@ -816,6 +820,7 @@
                 valorMO = Math.max(0, (dist - 20)) * 12;
             }
 
+            // 2. SUGESTÃO INTELIGENTE DE POSTES (Z10)
             let postesSugeridos = 1;
             if (ramalEscolhido !== "CONSULTAR ENGENHARIA") {
                 const bitolaNum = parseFloat(ramalEscolhido);
@@ -832,6 +837,7 @@
             const postesUtilizados = parseFloat(document.getElementById('input-postes').value) || 0;
             valorPoste = postesUtilizados * 400;
 
+            // 3. MATERIAIS ADICIONAIS
             activeAdicionaisList = [];
             activeAdicionaisTotal = 0;
 
@@ -856,23 +862,41 @@
                 });
 
                 valorAdicionais = activeAdicionaisTotal;
-            } else {
-                document.getElementById('modal-bitola-title').innerText = "--";
-                valorAdicionais = 300;
             }
 
-            const valorTotal = valorRamal + valorPoste + valorMO + valorAdicionais;
+            // 4. VERIFICAÇÃO "CONSULTAR ENGENHARIA" (OCULTA VALORES SE BLOQUEADO)
+            const isConsultarEngenharia = (ramalEscolhido === "CONSULTAR ENGENHARIA");
+            
+            if (isConsultarEngenharia) {
+                // UI do sistema
+                document.getElementById('fin-ramal').innerText = "Engenharia";
+                document.getElementById('fin-poste').innerText = "Engenharia";
+                document.getElementById('fin-mo').innerText = "Engenharia";
+                document.getElementById('fin-adicional').innerText = "Engenharia";
+                
+                document.getElementById('fin-total').classList.add('hidden');
+                document.getElementById('monday-btn-container').classList.remove('hidden');
+                document.getElementById('btn-gerar-proposta').classList.add('opacity-50', 'pointer-events-none');
+            } else {
+                // Valores padrão liberados
+                document.getElementById('fin-ramal').innerText = formatBRL(valorRamal);
+                document.getElementById('fin-poste').innerText = formatBRL(valorPoste);
+                document.getElementById('fin-mo').innerText = formatBRL(valorMO);
+                document.getElementById('fin-adicional').innerText = formatBRL(valorAdicionais);
+                
+                const valorTotal = valorRamal + valorPoste + valorMO + valorAdicionais;
+                document.getElementById('fin-total').innerText = formatBRL(valorTotal);
 
-            document.getElementById('out-corrente-container').innerText = correnteText;
+                document.getElementById('fin-total').classList.remove('hidden');
+                document.getElementById('monday-btn-container').classList.add('hidden');
+                document.getElementById('btn-gerar-proposta').classList.remove('opacity-50', 'pointer-events-none');
+            }
+
+            // Injeção de informações técnicas
+            document.getElementById('out-corrente-container').innerHTML = correnteText;
             document.getElementById('out-secao-teorica').innerText = secaoQT.toFixed(2);
             document.getElementById('out-ramal-escolhido').innerText = ramalEscolhido;
-            document.getElementById('out-un-ramal').innerText = (ramalEscolhido === "CONSULTAR ENGENHARIA") ? "" : " mm²";
-
-            document.getElementById('fin-ramal').innerText = formatBRL(valorRamal);
-            document.getElementById('fin-poste').innerText = formatBRL(valorPoste);
-            document.getElementById('fin-mo').innerText = formatBRL(valorMO);
-            document.getElementById('fin-adicional').innerText = formatBRL(valorAdicionais);
-            document.getElementById('fin-total').innerText = formatBRL(valorTotal);
+            document.getElementById('out-un-ramal').innerText = isConsultarEngenharia ? "" : " mm²";
         }
 
         function getBitolaComercial(secao) {
@@ -900,6 +924,7 @@
             return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
+        // PREPARAÇÃO DO PDF COM BLOQUEIOS DE SEGURANÇA
         function generateProposal() {
             const dist = document.getElementById('input-dist').value;
             const pot = document.getElementById('input-pot').value;
@@ -909,7 +934,7 @@
             const potBi = document.getElementById('input-pot-bi').value;
             const potTri = document.getElementById('input-pot-tri').value;
 
-            const corrente = document.getElementById('out-corrente-container').innerText;
+            const correnteHTML = document.getElementById('out-corrente-container').innerHTML;
             const secaoQT = document.getElementById('out-secao-teorica').innerText;
             const bitola = document.getElementById('out-ramal-escolhido').innerText;
 
@@ -925,10 +950,12 @@
 
             if(currentTab === 'bifasico') {
                 tituloPadrao = "PADRÃO BIFÁSICO (RAMAL TRIPLEX)";
+                document.getElementById('lbl-prop-pot').innerText = "Soma de Potência Inversores bifásicos:";
                 rowSingle.style.display = 'table-row';
                 rowMisto.style.display = 'none';
             } else if(currentTab === 'trifasico') {
                 tituloPadrao = "PADRÃO TRIFÁSICO (RAMAL QUADRUPLEX)";
+                document.getElementById('lbl-prop-pot').innerText = "Soma de Potência Inversores trifásicos:";
                 rowSingle.style.display = 'table-row';
                 rowMisto.style.display = 'none';
             } else if(currentTab === 'misto') {
@@ -938,6 +965,15 @@
             }
 
             document.getElementById('prop-padrão-titulo').innerText = tituloPadrao;
+
+            // Bloqueio do Monday no PDF
+            if (bitola === "CONSULTAR ENGENHARIA") {
+                document.getElementById('prop-composition-table').style.display = 'none';
+                document.getElementById('prop-monday-link').style.display = 'block';
+            } else {
+                document.getElementById('prop-composition-table').style.display = 'table';
+                document.getElementById('prop-monday-link').style.display = 'none';
+            }
 
             document.getElementById('prop-data').innerText = new Date().toLocaleDateString('pt-PT');
             document.getElementById('prop-ref').innerText = Math.floor(1000 + Math.random() * 9000);
@@ -949,7 +985,7 @@
             document.getElementById('prop-tens').innerText = tens;
             document.getElementById('prop-postes').innerText = postes;
 
-            document.getElementById('prop-corrente').innerText = corrente;
+            document.getElementById('prop-corrente').innerHTML = correnteHTML;
             document.getElementById('prop-secao').innerText = secaoQT;
             document.getElementById('prop-bitola').innerText = bitola;
 
