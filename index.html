@@ -896,20 +896,14 @@
                 const valorTotal = valorRamal + valorPoste + valorMO + valorAdicionais;
                 document.getElementById('fin-total').innerText = formatBRL(valorTotal);
 
-                document.getElementById('fin-total').classList.remove('hidden');
-                document.getElementById('monday-btn-container').classList.add('hidden');
-                document.getElementById('btn-gerar-proposta').classList.remove('opacity-50', 'pointer-events-none');
-            }
-
-            // Injeção de informações técnicas
-            document.getElementById('out-corrente-container').innerHTML = correnteText;
-            document.getElementById('out-secao-teorica').innerText = secaoQT.toFixed(2);
-            document.getElementById('out-ramal-escolhido').innerText = ramalEscolhido;
-            document.getElementById('out-un-ramal').innerText = isConsultarEngenharia ? "" : " mm²";
+            document.getElementById('fin-total').classList.remove('hidden');
+            document.getElementById('monday-btn-container').classList.add('hidden');
+            document.getElementById('btn-gerar-proposta').classList.remove('opacity-50', 'pointer-events-none');
         }
 
         function getBitolaComercial(secao) {
-            const bitolas = [16, 25, 35, 50, 70, 95, 120];
+            // Removido o 120 da lista comercial direta. Agora acima de 95mm² direciona para a Engenharia.
+            const bitolas = [16, 25, 35, 50, 70, 95];
             for (let i = 0; i < bitolas.length; i++) {
                 if (secao <= bitolas[i]) {
                     return bitolas[i];
