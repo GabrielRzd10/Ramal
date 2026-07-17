@@ -425,8 +425,6 @@
             <!-- Orçamento de Investimento -->
             <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 30px;">
                 <h3 style="font-size: 13px; font-weight: 800; color: #1e293b; text-transform: uppercase; margin-top: 0; margin-bottom: 18px; border-bottom: 2px solid #cbd5e1; padding-bottom: 6px;">Composição Comercial</h3>
-                
-                <!-- Orçamento de Valores (Ocultado se Consultar Engenharia) -->
                 <table style="width: 100%; font-size: 14px; line-height: 2.4;" id="prop-composition-table">
                     <tr>
                         <td style="color: #475569;">Valor de Aquisição de Cabo de Ramal:</td>
@@ -444,17 +442,19 @@
                         <td style="color: #475569; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;">Materiais Adicionais e Conectores de Fixação:</td>
                         <td style="font-weight: bold; text-align: right; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;" id="prop-v-add">--</td>
                     </tr>
+                    <!-- Detalhamento de Itens adicionais inserido dinamicamente no PDF -->
+                    <tr id="prop-materials-breakdown-row" style="display: none;">
+                        <td colspan="2" style="padding: 12px 16px; background-color: #f1f5f9; border-radius: 8px;">
+                            <table style="width: 100%; font-size: 11px; line-height: 1.8; color: #475569; border-collapse: collapse;" id="prop-materials-breakdown-table">
+                                <!-- Preenchido dinamicamente via JS -->
+                            </table>
+                        </td>
+                    </tr>
                     <tr style="font-size: 20px; font-weight: 900; color: #0f172a;">
                         <td style="padding-top: 15px;">INVESTIMENTO TOTAL ESTIMADO:</td>
                         <td style="text-align: right; color: #16a34a; padding-top: 15px;" id="prop-v-total">--</td>
                     </tr>
                 </table>
-
-                <!-- Monday Link no PDF -->
-                <div id="prop-monday-link" style="display: none; text-align: center; padding: 15px 0;">
-                    <p style="font-size: 16px; font-weight: bold; color: #b45309; margin: 0 0 10px 0;">Este projeto necessita de análise especial da Engenharia da Matriz Solar.</p>
-                    <a href="https://forms.monday.com/forms/8942d03433ed095ffa4ee2a3e5375824?r=use1&s=4" target="_blank" style="display: inline-block; background-color: #d97706; color: white; font-weight: 800; font-size: 14px; text-decoration: none; padding: 12px 25px; border-radius: 8px; text-transform: uppercase;">Solicitar orçamento para engenharia</a>
-                </div>
             </div>
 
             <!-- Termo de Aprovação Técnica -->
@@ -943,7 +943,7 @@
             const potBi = document.getElementById('input-pot-bi').value;
             const potTri = document.getElementById('input-pot-tri').value;
 
-            const correnteHTML = document.getElementById('out-corrente-container').innerHTML;
+            const corrente = document.getElementById('out-corrente-container').innerText;
             const secaoQT = document.getElementById('out-secao-teorica').innerText;
             const bitola = document.getElementById('out-ramal-escolhido').innerText;
 
@@ -959,12 +959,10 @@
 
             if(currentTab === 'bifasico') {
                 tituloPadrao = "PADRÃO BIFÁSICO (RAMAL TRIPLEX)";
-                document.getElementById('lbl-prop-pot').innerText = "Soma de Potência Inversores bifásicos:";
                 rowSingle.style.display = 'table-row';
                 rowMisto.style.display = 'none';
             } else if(currentTab === 'trifasico') {
                 tituloPadrao = "PADRÃO TRIFÁSICO (RAMAL QUADRUPLEX)";
-                document.getElementById('lbl-prop-pot').innerText = "Soma de Potência Inversores trifásicos:";
                 rowSingle.style.display = 'table-row';
                 rowMisto.style.display = 'none';
             } else if(currentTab === 'misto') {
@@ -974,15 +972,6 @@
             }
 
             document.getElementById('prop-padrão-titulo').innerText = tituloPadrao;
-
-            // Bloqueio do Monday no PDF
-            if (bitola === "CONSULTAR ENGENHARIA") {
-                document.getElementById('prop-composition-table').style.display = 'none';
-                document.getElementById('prop-monday-link').style.display = 'block';
-            } else {
-                document.getElementById('prop-composition-table').style.display = 'table';
-                document.getElementById('prop-monday-link').style.display = 'none';
-            }
 
             document.getElementById('prop-data').innerText = new Date().toLocaleDateString('pt-PT');
             document.getElementById('prop-ref').innerText = Math.floor(1000 + Math.random() * 9000);
@@ -994,7 +983,7 @@
             document.getElementById('prop-tens').innerText = tens;
             document.getElementById('prop-postes').innerText = postes;
 
-            document.getElementById('prop-corrente').innerHTML = correnteHTML;
+            document.getElementById('prop-corrente').innerText = corrente;
             document.getElementById('prop-secao').innerText = secaoQT;
             document.getElementById('prop-bitola').innerText = bitola;
 
@@ -1003,6 +992,42 @@
             document.getElementById('prop-v-mo').innerText = vMO;
             document.getElementById('prop-v-add').innerText = vAdd;
             document.getElementById('prop-v-total').innerText = vTotal;
+
+            // Renderizar detalhamento de materiais adicionais no PDF
+            const breakdownTable = document.getElementById('prop-materials-breakdown-table');
+            const breakdownRow = document.getElementById('prop-materials-breakdown-row');
+            breakdownTable.innerHTML = '';
+            
+            if (activeAdicionaisList && activeAdicionaisList.length > 0 && bitola !== "CONSULTAR ENGENHARIA") {
+                breakdownRow.style.display = 'table-row';
+                
+                // Cabeçalho da listagem detalhada
+                let headerTr = document.createElement('tr');
+                headerTr.style.borderBottom = '1px solid #cbd5e1';
+                headerTr.style.fontWeight = 'bold';
+                headerTr.style.color = '#1e293b';
+                headerTr.innerHTML = `
+                    <td style="padding-bottom: 6px; text-align: left;">Descrição do Material Adicional</td>
+                    <td style="padding-bottom: 6px; text-align: center; width: 100px;">Qtd.</td>
+                    <td style="padding-bottom: 6px; text-align: right; width: 100px;">Unitário</td>
+                    <td style="padding-bottom: 6px; text-align: right; width: 100px;">Subtotal</td>
+                `;
+                breakdownTable.appendChild(headerTr);
+
+                activeAdicionaisList.forEach(m => {
+                    let tr = document.createElement('tr');
+                    tr.style.borderBottom = '1px dotted #cbd5e1';
+                    tr.innerHTML = `
+                        <td style="padding: 6px 0; text-align: left; color: #334155;">${m.desc}</td>
+                        <td style="padding: 6px 0; text-align: center; color: #334155;">${m.qtd}</td>
+                        <td style="padding: 6px 0; text-align: right; color: #475569;">${formatBRL(m.unitPrice)}</td>
+                        <td style="padding: 6px 0; text-align: right; font-weight: bold; color: #0f172a;">${formatBRL(m.totalPrice)}</td>
+                    `;
+                    breakdownTable.appendChild(tr);
+                });
+            } else {
+                breakdownRow.style.display = 'none';
+            }
 
             window.print();
         }
