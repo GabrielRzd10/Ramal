@@ -198,7 +198,7 @@
                                     <span id="out-ramal-escolhido" class="text-3xl font-extrabold text-indigo-600">--</span>
                                     <span class="text-sm font-bold text-indigo-500" id="out-un-ramal"> mm²</span>
                                 </div>
-                                <span class="text-[10px] text-indigo-400 font-semibold">Próxima bitola comercial comercializável</span>
+                                <span class="text-[10px] text-indigo-400 font-semibold">Próxima bitola de mercado</span>
                             </div>
                         </div>
                     </div>
@@ -459,7 +459,7 @@
 
             <!-- Termo de Aprovação Técnica -->
             <div style="font-size: 11px; color: #64748b; line-height: 1.6; border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: justify;">
-                <p style="margin: 0 0 10px 0;"><strong>Termo de Engenharia:</strong> O presente dimensionamento e cálculo de condutor e queda de tensão foram estruturados in total conformidade com a regulamentação técnica da <strong>NBR 5410</strong>. A estimativa considera queda de tensão em circuitos terminais para inversores fotovoltaicos com as potências informadas.</p>
+                <p style="margin: 0 0 10px 0;"><strong>Termo de Engenharia:</strong> O presente dimensionamento e cálculo de condutor e queda de tensão foram estruturados em total conformidade com a regulamentação técnica da <strong>NBR 5410</strong>. A estimativa considera queda de tensão em circuitos terminais para inversores fotovoltaicos com as potências informadas.</p>
                 <p style="margin: 0 0 20px 0;">Este documento técnico é gerado para fins comerciais preliminares. É fundamental que a engenharia de campo valide as distâncias reais de fixação, ancoragem de poste e bitola do ramal antes do início de obras de infraestrutura.</p>
                 
                 <!-- Linhas de assinatura -->
@@ -896,9 +896,16 @@
                 const valorTotal = valorRamal + valorPoste + valorMO + valorAdicionais;
                 document.getElementById('fin-total').innerText = formatBRL(valorTotal);
 
-            document.getElementById('fin-total').classList.remove('hidden');
-            document.getElementById('monday-btn-container').classList.add('hidden');
-            document.getElementById('btn-gerar-proposta').classList.remove('opacity-50', 'pointer-events-none');
+                document.getElementById('fin-total').classList.remove('hidden');
+                document.getElementById('monday-btn-container').classList.add('hidden');
+                document.getElementById('btn-gerar-proposta').classList.remove('opacity-50', 'pointer-events-none');
+            }
+
+            // Atualizar UI Geral
+            document.getElementById('out-corrente-container').innerHTML = correnteText;
+            document.getElementById('out-secao-teorica').innerText = secaoQT.toFixed(2);
+            document.getElementById('out-ramal-escolhido').innerText = ramalEscolhido;
+            document.getElementById('out-un-ramal').innerText = isConsultarEngenharia ? "" : " mm²";
         }
 
         function getBitolaComercial(secao) {
@@ -981,11 +988,22 @@
             document.getElementById('prop-secao').innerText = secaoQT;
             document.getElementById('prop-bitola').innerText = bitola;
 
-            document.getElementById('prop-v-ramal').innerText = vRamal;
-            document.getElementById('prop-v-postes').innerText = vPostes;
-            document.getElementById('prop-v-mo').innerText = vMO;
-            document.getElementById('prop-v-add').innerText = vAdd;
-            document.getElementById('prop-v-total').innerText = vTotal;
+            // Se for consultar engenharia, mostramos mensagens específicas no PDF
+            if(bitola === "CONSULTAR ENGENHARIA") {
+                document.getElementById('prop-v-ramal').innerText = "Engenharia";
+                document.getElementById('prop-v-postes').innerText = "Engenharia";
+                document.getElementById('prop-v-mo').innerText = "Engenharia";
+                document.getElementById('prop-v-add').innerText = "Engenharia";
+                document.getElementById('prop-v-total').innerText = "Solicitar orçamento para engenharia";
+                document.getElementById('prop-v-total').style.color = "#ea580c"; // Cor laranja para chamar atenção
+            } else {
+                document.getElementById('prop-v-ramal').innerText = vRamal;
+                document.getElementById('prop-v-postes').innerText = vPostes;
+                document.getElementById('prop-v-mo').innerText = vMO;
+                document.getElementById('prop-v-add').innerText = vAdd;
+                document.getElementById('prop-v-total').innerText = vTotal;
+                document.getElementById('prop-v-total').style.color = "#16a34a"; // Verde
+            }
 
             // Renderizar detalhamento de materiais adicionais no PDF
             const breakdownTable = document.getElementById('prop-materials-breakdown-table');
