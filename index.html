@@ -2,8 +2,15 @@
 <html lang="pt-pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dimensionador de Ramais & Proposta Comercial</title>
+    
+    <!-- Configurações para se comportar como Aplicativo no iPhone (PWA iOS) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ramal Vendas">
+    <link rel="apple-touch-icon" href="LOGO%20MATRIZ%20SOLAR.png">
+
     <!-- Tailwind CSS para design premium moderno -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,6 +22,7 @@
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #f8fafc;
+            padding-top: env(safe-area-inset-top);
         }
 
         /* ESTILOS DE IMPRESSÃO - CORREÇÃO DE PÁGINA EM BRANCO */
@@ -47,8 +55,9 @@
         <header class="bg-gradient-to-r from-slate-900 via-slate-950 to-indigo-950 text-white shadow-md py-4 px-6">
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-4">
+                    <!-- LOGO DA MATRIZ SOLAR CONTAINER -->
                     <div class="bg-white p-1.5 rounded-xl shadow-lg max-w-[100px] md:max-w-[120px]">
-                        <img src="LOGO MATRIZ SOLAR.png" alt="Matriz Solar" class="w-full h-auto object-contain" onerror="this.src='https://placehold.co/120x120/ffffff/4f46e5?text=Matriz+Solar'">
+                        <img src="LOGO%20MATRIZ%20SOLAR.png" alt="Matriz Solar" class="w-full h-auto object-contain" onerror="this.src='https://placehold.co/120x120/ffffff/4f46e5?text=Matriz+Solar'">
                     </div>
                     <div>
                         <h1 class="text-2xl font-extrabold tracking-tight">Cálculo de Ramais & Propostas</h1>
@@ -351,7 +360,7 @@
                         <p style="font-size: 14px; color: #4f46e5; margin: 5px 0 0 0; font-weight: bold;" id="prop-padrão-titulo">PADRÃO BIFÁSICO</p>
                     </td>
                     <td style="text-align: right; vertical-align: middle; width: 180px;">
-                        <img src="LOGO MATRIZ SOLAR.png" alt="Matriz Solar" style="max-width: 150px; height: auto; display: inline-block;" onerror="this.src='https://placehold.co/150x150/ffffff/4f46e5?text=Matriz+Solar'">
+                        <img src="LOGO%20MATRIZ%20SOLAR.png" alt="Matriz Solar" style="max-width: 150px; height: auto; display: inline-block;" onerror="this.src='https://placehold.co/150x150/ffffff/4f46e5?text=Matriz+Solar'">
                     </td>
                 </tr>
                 <tr>
@@ -450,7 +459,7 @@
 
             <!-- Termo de Aprovação Técnica -->
             <div style="font-size: 11px; color: #64748b; line-height: 1.6; border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: justify;">
-                <p style="margin: 0 0 10px 0;"><strong>Termo de Engenharia:</strong> O presente dimensionamento e cálculo de condutor e queda de tensão foram estruturados em total conformidade com a regulamentação técnica da <strong>NBR 5410</strong>. A estimativa considera queda de tensão em circuitos terminais para inversores fotovoltaicos com as potências informadas.</p>
+                <p style="margin: 0 0 10px 0;"><strong>Termo de Engenharia:</strong> O presente dimensionamento e cálculo de condutor e queda de tensão foram estruturados in total conformidade com a regulamentação técnica da <strong>NBR 5410</strong>. A estimativa considera queda de tensão em circuitos terminais para inversores fotovoltaicos com as potências informadas.</p>
                 <p style="margin: 0 0 20px 0;">Este documento técnico é gerado para fins comerciais preliminares. É fundamental que a engenharia de campo valide as distâncias reais de fixação, ancoragem de poste e bitola do ramal antes do início de obras de infraestrutura.</p>
                 
                 <!-- Linhas de assinatura -->
@@ -605,7 +614,7 @@
 
             if(tab === 'bifasico') {
                 document.getElementById('form-title').innerText = "Entrada de Dados (Bifásico)";
-                document.getElementById('lbl-distancia').innerText = "Distância do Ramal (B5)";
+                document.getElementById('lbl-distancia').innerText = "Comprimento do Ramal (B5)";
                 document.getElementById('lbl-potencia').innerText = "Soma de Potência Inversores bifásicos";
                 document.getElementById('lbl-tensao').innerText = "Tensão do Sistema (B7)";
                 
@@ -618,7 +627,7 @@
                 `;
             } else if(tab === 'trifasico') {
                 document.getElementById('form-title').innerText = "Entrada de Dados (Trifásico)";
-                document.getElementById('lbl-distancia').innerText = "Distância do Ramal (B13)";
+                document.getElementById('lbl-distancia').innerText = "Comprimento do Ramal (B13)";
                 document.getElementById('lbl-potencia').innerText = "Soma de Potência Inversores trifásicos";
                 document.getElementById('lbl-tensao').innerText = "Tensão do Sistema (B15)";
 
