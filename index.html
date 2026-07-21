@@ -109,6 +109,16 @@
                                 </div>
                             </div>
 
+                            <!-- Metragem Coberta / Isenta (Franquia) -->
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">Metragem Coberta / Isenta (Desconto)</label>
+                                <div class="relative">
+                                    <input type="number" id="input-desconto-metragem" value="20" min="0" oninput="calculate()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl py-3 pl-4 pr-12 text-slate-900 font-black outline-none transition">
+                                    <span class="absolute right-4 top-3.5 text-slate-400 text-sm font-black">m</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-1 font-semibold">Metros descontados do cálculo de cobrança de cabo e mão de obra.</p>
+                            </div>
+
                             <!-- Potências do Inversor (Condicional) -->
                             <div id="pot-single-container">
                                 <label class="block text-sm font-bold text-slate-700 mb-1" id="lbl-potencia">Soma de Potência Inversores bifásicos</label>
@@ -382,6 +392,10 @@
                                 <td style="color: #64748b;">Distância Linear do Ramal:</td>
                                 <td style="font-weight: bold; text-align: right;"><span id="prop-dist">--</span> m</td>
                             </tr>
+                            <tr>
+                                <td style="color: #64748b;">Metragem Coberta / Isenta:</td>
+                                <td style="font-weight: bold; text-align: right;"><span id="prop-desconto-m">--</span> m</td>
+                            </tr>
                             <tr id="prop-pot-row-single">
                                 <td style="color: #64748b;" id="lbl-prop-pot">Soma de Potência Inversores:</td>
                                 <td style="font-weight: bold; text-align: right;"><span id="prop-pot">--</span> kW</td>
@@ -427,7 +441,7 @@
                 <h3 style="font-size: 13px; font-weight: 800; color: #1e293b; text-transform: uppercase; margin-top: 0; margin-bottom: 18px; border-bottom: 2px solid #cbd5e1; padding-bottom: 6px;">Composição Comercial</h3>
                 <table style="width: 100%; font-size: 14px; line-height: 2.4;" id="prop-composition-table">
                     <tr>
-                        <td style="color: #475569;">Valor de Aquisição de Cabo de Ramal:</td>
+                        <td style="color: #475569;">Valor de Aquisição de Cabo de Ramal (<span id="prop-metros-cobrados">--</span>m cobráveis):</td>
                         <td style="font-weight: bold; text-align: right; color: #0f172a;" id="prop-v-ramal">--</td>
                     </tr>
                     <tr>
@@ -484,7 +498,7 @@
         // Memória de Estado Global da Aplicação
         let currentTab = 'bifasico';
 
-        // Base de Dados de Preços das tabelas Y e Z da Imagem image_57a43d.png atualizados
+        // Base de Dados de Preços das tabelas Y e Z atualizados
         const pricingDB = {
             cabos: {
                 "16":  { triplex: 9.59,  quadruplex: 13.12 },
@@ -523,7 +537,7 @@
             }
         };
 
-        // Estrutura de materiais adicionais conforme bitola da Imagem 02317f.png
+        // Estrutura de materiais adicionais conforme bitola
         const materiaisPorBitola = {
             "16": [
                 { id: "PARAFUSO_M16_OLHAL", desc: "PARAFUSO M16 COM OLHAL 200mm", baseQtd: 1, porPoste: true },
@@ -717,6 +731,7 @@
 
         let activeAdicionaisList = [];
         let activeAdicionaisTotal = 0;
+        let globalMetrosCobraveis = 0;
 
         function openMaterialsModal() {
             const modal = document.getElementById('materials-modal');
@@ -754,6 +769,7 @@
         // ==========================================
         function calculate() {
             const dist = parseFloat(document.getElementById('input-dist').value) || 0;
+            const metragemDesconto = parseFloat(document.getElementById('input-desconto-metragem').value) || 0;
             const pot = parseFloat(document.getElementById('input-pot').value) || 0;
             const tens = parseFloat(document.getElementById('input-tensao').value) || 220;
             
@@ -764,6 +780,9 @@
                 resetOutputs();
                 return;
             }
+
+            // Metragem líquida cobrável após aplicar o desconto/franquia
+            globalMetrosCobraveis = Math.max(0, dist - metragemDesconto);
 
             let correnteText = "";
             let correnteCalculada = 0;
@@ -786,10 +805,10 @@
                 ramalEscolhido = getBitolaComercial(secaoQT);
 
                 if (ramalEscolhido !== "CONSULTAR ENGENHARIA" && pricingDB.cabos[ramalEscolhido]) {
-                    valorRamal = pricingDB.cabos[ramalEscolhido].triplex * dist;
+                    valorRamal = pricingDB.cabos[ramalEscolhido].triplex * globalMetrosCobraveis;
                 }
 
-                valorMO = Math.max(0, (dist - 20)) * 10;
+                valorMO = globalMetrosCobraveis * 10;
 
             } else if (currentTab === 'trifasico') {
                 correnteCalculada = (pot * 1.1 * 1000) / (tens * 1.73);
@@ -802,10 +821,10 @@
                 ramalEscolhido = getBitolaComercial(secaoQT);
 
                 if (ramalEscolhido !== "CONSULTAR ENGENHARIA" && pricingDB.cabos[ramalEscolhido]) {
-                    valorRamal = pricingDB.cabos[ramalEscolhido].quadruplex * dist;
+                    valorRamal = pricingDB.cabos[ramalEscolhido].quadruplex * globalMetrosCobraveis;
                 }
 
-                valorMO = Math.max(0, (dist - 20)) * 12;
+                valorMO = globalMetrosCobraveis * 12;
 
             } else if (currentTab === 'misto') {
                 const corrBi = (potBi * 1.1 * 1000) / 220;
@@ -813,7 +832,6 @@
                 
                 const corrSomada = corrBi + corrTri;
                 correnteCalculada = corrSomada;
-                // Quebra de texto aplicada: BI acima, TRI abaixo
                 correnteText = `Bi: ${corrBi.toFixed(1)} A<br>Tri: ${corrTri.toFixed(1)} A`;
                 document.getElementById('lbl-formula-corrente').innerText = "C22 + C23 (Somatório de Correntes)";
 
@@ -823,10 +841,10 @@
                 ramalEscolhido = getBitolaComercial(secaoQT);
 
                 if (ramalEscolhido !== "CONSULTAR ENGENHARIA" && pricingDB.cabos[ramalEscolhido]) {
-                    valorRamal = pricingDB.cabos[ramalEscolhido].quadruplex * dist;
+                    valorRamal = pricingDB.cabos[ramalEscolhido].quadruplex * globalMetrosCobraveis;
                 }
 
-                valorMO = Math.max(0, (dist - 20)) * 12;
+                valorMO = globalMetrosCobraveis * 12;
             }
 
             // 2. SUGESTÃO INTELIGENTE DE POSTES (Z10)
@@ -877,7 +895,6 @@
             const isConsultarEngenharia = (ramalEscolhido === "CONSULTAR ENGENHARIA");
             
             if (isConsultarEngenharia) {
-                // UI do sistema
                 document.getElementById('fin-ramal').innerText = "Engenharia";
                 document.getElementById('fin-poste').innerText = "Engenharia";
                 document.getElementById('fin-mo').innerText = "Engenharia";
@@ -887,7 +904,6 @@
                 document.getElementById('monday-btn-container').classList.remove('hidden');
                 document.getElementById('btn-gerar-proposta').classList.add('opacity-50', 'pointer-events-none');
             } else {
-                // Valores padrão liberados
                 document.getElementById('fin-ramal').innerText = formatBRL(valorRamal);
                 document.getElementById('fin-poste').innerText = formatBRL(valorPoste);
                 document.getElementById('fin-mo').innerText = formatBRL(valorMO);
@@ -909,7 +925,6 @@
         }
 
         function getBitolaComercial(secao) {
-            // Removido o 120 da lista comercial direta. Agora acima de 95mm² direciona para a Engenharia.
             const bitolas = [16, 25, 35, 50, 70, 95];
             for (let i = 0; i < bitolas.length; i++) {
                 if (secao <= bitolas[i]) {
@@ -937,6 +952,7 @@
         // PREPARAÇÃO DO PDF COM BLOQUEIOS DE SEGURANÇA
         function generateProposal() {
             const dist = document.getElementById('input-dist').value;
+            const metragemDesconto = document.getElementById('input-desconto-metragem').value;
             const pot = document.getElementById('input-pot').value;
             const tens = document.getElementById('input-tensao').value;
             const postes = document.getElementById('input-postes').value;
@@ -978,6 +994,8 @@
             document.getElementById('prop-ref').innerText = Math.floor(1000 + Math.random() * 9000);
 
             document.getElementById('prop-dist').innerText = dist;
+            document.getElementById('prop-desconto-m').innerText = metragemDesconto;
+            document.getElementById('prop-metros-cobrados').innerText = globalMetrosCobraveis;
             document.getElementById('prop-pot').innerText = pot;
             document.getElementById('prop-pot-bi').innerText = potBi;
             document.getElementById('prop-pot-tri').innerText = potTri;
@@ -995,14 +1013,14 @@
                 document.getElementById('prop-v-mo').innerText = "Engenharia";
                 document.getElementById('prop-v-add').innerText = "Engenharia";
                 document.getElementById('prop-v-total').innerText = "Solicitar orçamento para engenharia";
-                document.getElementById('prop-v-total').style.color = "#ea580c"; // Cor laranja para chamar atenção
+                document.getElementById('prop-v-total').style.color = "#ea580c"; 
             } else {
                 document.getElementById('prop-v-ramal').innerText = vRamal;
                 document.getElementById('prop-v-postes').innerText = vPostes;
                 document.getElementById('prop-v-mo').innerText = vMO;
                 document.getElementById('prop-v-add').innerText = vAdd;
                 document.getElementById('prop-v-total').innerText = vTotal;
-                document.getElementById('prop-v-total').style.color = "#16a34a"; // Verde
+                document.getElementById('prop-v-total').style.color = "#16a34a"; 
             }
 
             // Renderizar detalhamento de materiais adicionais no PDF
@@ -1013,7 +1031,6 @@
             if (activeAdicionaisList && activeAdicionaisList.length > 0 && bitola !== "CONSULTAR ENGENHARIA") {
                 breakdownRow.style.display = 'table-row';
                 
-                // Cabeçalho da listagem detalhada
                 let headerTr = document.createElement('tr');
                 headerTr.style.borderBottom = '1px solid #cbd5e1';
                 headerTr.style.fontWeight = 'bold';
