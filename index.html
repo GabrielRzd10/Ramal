@@ -181,34 +181,43 @@
                             <h2 class="text-xl font-extrabold text-slate-900">Análise de Engenharia</h2>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                             <!-- Corrente -->
-                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center flex flex-col justify-between">
-                                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Corrente Calculada</span>
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center flex flex-col justify-between">
+                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Corrente Calc.</span>
                                 <div class="my-2" id="box-corrente-misto">
-                                    <div id="out-corrente-container" class="text-2xl font-extrabold text-slate-900 leading-snug">-- A</div>
+                                    <div id="out-corrente-container" class="text-lg font-extrabold text-slate-900 leading-snug">-- A</div>
                                 </div>
-                                <span class="text-[10px] text-slate-400 font-semibold" id="lbl-formula-corrente">Fórmula do Padrão</span>
+                                <span class="text-[9px] text-slate-400 font-semibold" id="lbl-formula-corrente">Fórmula</span>
                             </div>
 
-                            <!-- Seção Calculada -->
-                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center flex flex-col justify-between">
-                                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Seção Teórica (mm²)</span>
+                            <!-- Seção Teórica QT -->
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center flex flex-col justify-between">
+                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Seção QT (mm²)</span>
                                 <div class="my-2">
-                                    <span id="out-secao-teorica" class="text-2xl font-extrabold text-slate-900">--</span>
-                                    <span class="text-sm font-bold text-slate-500"> mm²</span>
+                                    <span id="out-secao-teorica" class="text-xl font-extrabold text-slate-900">--</span>
                                 </div>
-                                <span class="text-[10px] text-slate-400 font-semibold" id="lbl-formula-secao">Queda de Tensão (QT)</span>
+                                <span class="text-[9px] text-slate-400 font-semibold">Queda Tensão</span>
+                            </div>
+
+                            <!-- Seção por Corrente -->
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center flex flex-col justify-between">
+                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Seção Corrente</span>
+                                <div class="my-2">
+                                    <span id="out-secao-corrente" class="text-xl font-extrabold text-slate-900">--</span>
+                                    <span class="text-xs font-bold text-slate-500"> mm²</span>
+                                </div>
+                                <span class="text-[9px] text-slate-400 font-semibold">Cap. Condução</span>
                             </div>
 
                             <!-- Ramal Escolhido -->
-                            <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 text-center flex flex-col justify-between">
-                                <span class="text-xs font-bold text-indigo-500 uppercase tracking-wider">Ramal Comercial</span>
+                            <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 text-center flex flex-col justify-between">
+                                <span class="text-[11px] font-bold text-indigo-500 uppercase tracking-wider">Ramal Final</span>
                                 <div class="my-2">
-                                    <span id="out-ramal-escolhido" class="text-3xl font-extrabold text-indigo-600">--</span>
-                                    <span class="text-sm font-bold text-indigo-500" id="out-un-ramal"> mm²</span>
+                                    <span id="out-ramal-escolhido" class="text-2xl font-extrabold text-indigo-600">--</span>
+                                    <span class="text-xs font-bold text-indigo-500" id="out-un-ramal"> mm²</span>
                                 </div>
-                                <span class="text-[10px] text-indigo-400 font-semibold">Próxima bitola de mercado</span>
+                                <span class="text-[9px] text-indigo-400 font-semibold">Max(QT, Corrente)</span>
                             </div>
                         </div>
                     </div>
@@ -352,7 +361,7 @@
 
         <!-- RODAPÉ -->
         <footer class="bg-slate-950 text-slate-500 py-4 px-6 text-center text-xs border-t border-slate-900 font-bold">
-            Dimensionador Comercial Universal • Em conformidade com as regras NBR 5410 de queda de tensão.
+            Dimensionador Comercial Universal • Em conformidade com as regras NBR 5410 de queda de tensão e condução de corrente.
         </footer>
     </div>
 
@@ -424,8 +433,12 @@
                                 <td style="font-weight: bold; text-align: right;" id="prop-corrente">-- A</td>
                             </tr>
                             <tr>
-                                <td style="color: #64748b;">Seção Teórica Estimada (QT):</td>
+                                <td style="color: #64748b;">Seção Teórica (QT):</td>
                                 <td style="font-weight: bold; text-align: right;"><span id="prop-secao">--</span> mm²</td>
+                            </tr>
+                            <tr>
+                                <td style="color: #64748b;">Seção por Corrente:</td>
+                                <td style="font-weight: bold; text-align: right;"><span id="prop-secao-corrente">--</span> mm²</td>
                             </tr>
                             <tr style="font-size: 15px; font-weight: bold; color: #4f46e5;">
                                 <td style="padding-top: 10px;">Cabo de Ramal Selecionado:</td>
@@ -473,7 +486,7 @@
 
             <!-- Termo de Aprovação Técnica -->
             <div style="font-size: 11px; color: #64748b; line-height: 1.6; border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: justify;">
-                <p style="margin: 0 0 10px 0;"><strong>Termo de Engenharia:</strong> O presente dimensionamento e cálculo de condutor e queda de tensão foram estruturados em total conformidade com a regulamentação técnica da <strong>NBR 5410</strong>. A estimativa considera queda de tensão em circuitos terminais para inversores fotovoltaicos com as potências informadas.</p>
+                <p style="margin: 0 0 10px 0;"><strong>Termo de Engenharia:</strong> O presente dimensionamento e cálculo de condutor, queda de tensão e capacidade de condução de corrente foram estruturados em total conformidade com a regulamentação técnica da <strong>NBR 5410</strong>.</p>
                 <p style="margin: 0 0 20px 0;">Este documento técnico é gerado para fins comerciais preliminares. É fundamental que a engenharia de campo valide as distâncias reais de fixação, ancoragem de poste e bitola do ramal antes do início de obras de infraestrutura.</p>
                 
                 <!-- Linhas de assinatura -->
@@ -498,6 +511,28 @@
         // Memória de Estado Global da Aplicação
         let currentTab = 'bifasico';
 
+        // Tabelas oficiais de capacidade de corrente por bitola
+        const currentCapacityTables = {
+            bifasico: [
+                { bitola: 16, maxCorrente: 99 },
+                { bitola: 25, maxCorrente: 131 },
+                { bitola: 35, maxCorrente: 162 },
+                { bitola: 50, maxCorrente: 196 },
+                { bitola: 70, maxCorrente: 251 },
+                { bitola: 95, maxCorrente: 304 },
+                { bitola: 120, maxCorrente: 352 }
+            ],
+            trifasico: [
+                { bitola: 16, maxCorrente: 82 },
+                { bitola: 25, maxCorrente: 110 },
+                { bitola: 35, maxCorrente: 137 },
+                { bitola: 50, maxCorrente: 167 },
+                { bitola: 70, maxCorrente: 216 },
+                { bitola: 95, maxCorrente: 264 },
+                { bitola: 120, maxCorrente: 308 }
+            ]
+        };
+
         // Base de Dados de Preços das tabelas Y e Z atualizados
         const pricingDB = {
             cabos: {
@@ -508,7 +543,7 @@
                 "70":  { triplex: 36.19, quadruplex: 41.60 },
                 "95":  { triplex: 47.60, quadruplex: 56.00 },
                 "120": { triplex: 57.80, quadruplex: 68.00 },
-                "150": { triplex: 38.18, quadruplex: 43.50 } // Fallback de segurança
+                "150": { triplex: 38.18, quadruplex: 43.50 }
             },
             pecas: {
                 "PARAFUSO_M16_OLHAL": 35.90,
@@ -787,27 +822,16 @@
             let correnteText = "";
             let correnteCalculada = 0;
             let secaoQT = 0;
-            let ramalEscolhido = "CONSULTAR ENGENHARIA";
-            let valorRamal = 0;
-            let valorPoste = 0;
-            let valorMO = 0;
-            let valorAdicionais = 0;
+            let tableKey = 'bifasico';
 
-            // 1. CÁLCULOS POR ABA / PADRÃO SELECIONADO
+            // 1. CÁLCULOS DE CORRENTE E QT POR ABA
             if (currentTab === 'bifasico') {
                 correnteCalculada = (pot * 1.1 * 1000) / tens;
                 correnteText = `${correnteCalculada.toFixed(2)} A`;
                 document.getElementById('lbl-formula-corrente').innerText = "Fórmula: (B6 * 1.1 * 1000) / B7";
 
                 secaoQT = (200 * 0.0282 * dist * correnteCalculada) / (4 * tens);
-                document.getElementById('lbl-formula-secao').innerText = "Fórmula Queda de Tensão (E3)";
-
-                ramalEscolhido = getBitolaComercial(secaoQT);
-
-                if (ramalEscolhido !== "CONSULTAR ENGENHARIA" && pricingDB.cabos[ramalEscolhido]) {
-                    valorRamal = pricingDB.cabos[ramalEscolhido].triplex * globalMetrosCobraveis;
-                }
-
+                tableKey = 'bifasico';
                 valorMO = globalMetrosCobraveis * 10;
 
             } else if (currentTab === 'trifasico') {
@@ -816,14 +840,7 @@
                 document.getElementById('lbl-formula-corrente').innerText = "Fórmula: ((B14 * 1.1 * 1000) / (B15 * 1.73))";
 
                 secaoQT = (100 * 1.732 * 0.0282 * dist * correnteCalculada) / (4 * tens);
-                document.getElementById('lbl-formula-secao').innerText = "Fórmula Queda de Tensão (E11)";
-
-                ramalEscolhido = getBitolaComercial(secaoQT);
-
-                if (ramalEscolhido !== "CONSULTAR ENGENHARIA" && pricingDB.cabos[ramalEscolhido]) {
-                    valorRamal = pricingDB.cabos[ramalEscolhido].quadruplex * globalMetrosCobraveis;
-                }
-
+                tableKey = 'trifasico';
                 valorMO = globalMetrosCobraveis * 12;
 
             } else if (currentTab === 'misto') {
@@ -833,29 +850,36 @@
                 const corrSomada = corrBi + corrTri;
                 correnteCalculada = corrSomada;
                 correnteText = `Bi: ${corrBi.toFixed(1)} A<br>Tri: ${corrTri.toFixed(1)} A`;
-                document.getElementById('lbl-formula-corrente').innerText = "C22 + C23 (Somatório de Correntes)";
+                document.getElementById('lbl-formula-corrente').innerText = "C22 + C23 (Somatório)";
 
                 secaoQT = (100 * 1.732 * 0.0282 * dist * corrSomada) / (4 * tens);
-                document.getElementById('lbl-formula-secao').innerText = "Fórmula Queda de Tensão (E19)";
-
-                ramalEscolhido = getBitolaComercial(secaoQT);
-
-                if (ramalEscolhido !== "CONSULTAR ENGENHARIA" && pricingDB.cabos[ramalEscolhido]) {
-                    valorRamal = pricingDB.cabos[ramalEscolhido].quadruplex * globalMetrosCobraveis;
-                }
-
+                tableKey = 'trifasico';
                 valorMO = globalMetrosCobraveis * 12;
             }
 
-            // 2. SUGESTÃO INTELIGENTE DE POSTES (Z10)
+            // 2. DETERMINAR SEÇÃO COMERCIAL POR QT E POR CORRENTE
+            const bitolaQT = getBitolaComercial(secaoQT);
+            const bitolaCorrente = getBitolaPorCorrente(correnteCalculada, tableKey);
+
+            // 3. ESCOLHA FINAL DO RAMAL: O MAIOR ENTRE QT E CORRENTE (MAX)
+            let ramalEscolhido = getMaiorBitola(bitolaQT, bitolaCorrente);
+
+            let valorRamal = 0;
+            let valorPoste = 0;
+            let valorAdicionais = 0;
+
+            const isConsultarEngenharia = (ramalEscolhido === "CONSULTAR ENGENHARIA");
+
+            if (!isConsultarEngenharia && pricingDB.cabos[ramalEscolhido]) {
+                const tipoCabo = (currentTab === 'bifasico') ? 'triplex' : 'quadruplex';
+                valorRamal = pricingDB.cabos[ramalEscolhido][tipoCabo] * globalMetrosCobraveis;
+            }
+
+            // 4. SUGESTÃO INTELIGENTE DE POSTES (Z10)
             let postesSugeridos = 1;
-            if (ramalEscolhido !== "CONSULTAR ENGENHARIA") {
+            if (!isConsultarEngenharia) {
                 const bitolaNum = parseFloat(ramalEscolhido);
-                if (bitolaNum <= 50) {
-                    postesSugeridos = Math.ceil(dist / 40);
-                } else {
-                    postesSugeridos = Math.ceil(dist / 30);
-                }
+                postesSugeridos = (bitolaNum <= 50) ? Math.ceil(dist / 40) : Math.ceil(dist / 30);
             } else {
                 postesSugeridos = Math.ceil(dist / 40);
             }
@@ -864,11 +888,11 @@
             const postesUtilizados = parseFloat(document.getElementById('input-postes').value) || 0;
             valorPoste = postesUtilizados * 400;
 
-            // 3. MATERIAIS ADICIONAIS
+            // 5. MATERIAIS ADICIONAIS
             activeAdicionaisList = [];
             activeAdicionaisTotal = 0;
 
-            if (ramalEscolhido !== "CONSULTAR ENGENHARIA" && materiaisPorBitola[ramalEscolhido]) {
+            if (!isConsultarEngenharia && materiaisPorBitola[ramalEscolhido]) {
                 const listaMateriais = materiaisPorBitola[ramalEscolhido];
                 document.getElementById('modal-bitola-title').innerText = ramalEscolhido;
 
@@ -891,9 +915,7 @@
                 valorAdicionais = activeAdicionaisTotal;
             }
 
-            // 4. VERIFICAÇÃO "CONSULTAR ENGENHARIA" (OCULTA VALORES SE BLOQUEADO)
-            const isConsultarEngenharia = (ramalEscolhido === "CONSULTAR ENGENHARIA");
-            
+            // 6. ATUALIZAÇÃO DA INTERFACE COMERCIAL
             if (isConsultarEngenharia) {
                 document.getElementById('fin-ramal').innerText = "Engenharia";
                 document.getElementById('fin-poste').innerText = "Engenharia";
@@ -917,15 +939,17 @@
                 document.getElementById('btn-gerar-proposta').classList.remove('opacity-50', 'pointer-events-none');
             }
 
-            // Atualizar UI Geral
+            // Atualizar UI de Engenharia
             document.getElementById('out-corrente-container').innerHTML = correnteText;
-            document.getElementById('out-secao-teorica').innerText = secaoQT.toFixed(2);
+            document.getElementById('out-secao-teorica').innerText = secaoQT.toFixed(1);
+            document.getElementById('out-secao-corrente').innerText = (bitolaCorrente === "CONSULTAR ENGENHARIA") ? "Consultar" : bitolaCorrente;
             document.getElementById('out-ramal-escolhido').innerText = ramalEscolhido;
             document.getElementById('out-un-ramal').innerText = isConsultarEngenharia ? "" : " mm²";
         }
 
+        // Função para obter a bitola comercial baseada na Queda de Tensão
         function getBitolaComercial(secao) {
-            const bitolas = [16, 25, 35, 50, 70, 95];
+            const bitolas = [16, 25, 35, 50, 70, 95, 120];
             for (let i = 0; i < bitolas.length; i++) {
                 if (secao <= bitolas[i]) {
                     return bitolas[i];
@@ -934,9 +958,33 @@
             return "CONSULTAR ENGENHARIA";
         }
 
+        // Função para obter a bitola comercial baseada na capacidade de corrente
+        function getBitolaPorCorrente(corrente, tipo) {
+            const tabela = currentCapacityTables[tipo] || currentCapacityTables.bifasico;
+            for (let i = 0; i < tabela.length; i++) {
+                if (corrente <= tabela[i].maxCorrente) {
+                    return tabela[i].bitola;
+                }
+            }
+            return "CONSULTAR ENGENHARIA";
+        }
+
+        // Função para retornar a maior bitola entre QT e Corrente (Max)
+        function getMaiorBitola(b1, b2) {
+            if (b1 === "CONSULTAR ENGENHARIA" || b2 === "CONSULTAR ENGENHARIA") {
+                return "CONSULTAR ENGENHARIA";
+            }
+            const bitolas = [16, 25, 35, 50, 70, 95, 120];
+            const idx1 = bitolas.indexOf(Number(b1));
+            const idx2 = bitolas.indexOf(Number(b2));
+            const maxIdx = Math.max(idx1 >= 0 ? idx1 : 0, idx2 >= 0 ? idx2 : 0);
+            return bitolas[maxIdx];
+        }
+
         function resetOutputs() {
             document.getElementById('out-corrente-container').innerText = "-- A";
             document.getElementById('out-secao-teorica').innerText = "--";
+            document.getElementById('out-secao-corrente').innerText = "--";
             document.getElementById('out-ramal-escolhido').innerText = "--";
             document.getElementById('fin-ramal').innerText = "R$ 0,00";
             document.getElementById('fin-poste').innerText = "R$ 0,00";
@@ -962,6 +1010,7 @@
 
             const corrente = document.getElementById('out-corrente-container').innerText;
             const secaoQT = document.getElementById('out-secao-teorica').innerText;
+            const secaoCorrente = document.getElementById('out-secao-corrente').innerText;
             const bitola = document.getElementById('out-ramal-escolhido').innerText;
 
             const vRamal = document.getElementById('fin-ramal').innerText;
@@ -1004,6 +1053,7 @@
 
             document.getElementById('prop-corrente').innerText = corrente;
             document.getElementById('prop-secao').innerText = secaoQT;
+            document.getElementById('prop-secao-corrente').innerText = secaoCorrente;
             document.getElementById('prop-bitola').innerText = bitola;
 
             // Se for consultar engenharia, mostramos mensagens específicas no PDF
